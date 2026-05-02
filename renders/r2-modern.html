@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>R2 · Modern SaaS Education</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#fafaf9;
+  --bg-2:#f4f3ef;
+  --surface:#ffffff;
+  --ink:#0c0e1d;
+  --muted:#5a5f72;
+  --border:#e7e5df;
+  --indigo:#4338ca;
+  --indigo-2:#3730a3;
+  --indigo-soft:#eef2ff;
+  --rose:#fef0f4;
+  --rose-2:#e11d6f;
+  --amber-soft:#fef7e6;
+  --amber-2:#d97706;
+  --teal-soft:#ecfdf5;
+  --teal-2:#059669;
+  --violet-soft:#f3e8ff;
+  --violet-2:#7c3aed;
+  --shadow:0 1px 2px rgba(12,14,29,.04),0 2px 8px rgba(12,14,29,.04);
+  --shadow-lg:0 12px 40px -8px rgba(67,56,202,.18),0 2px 8px rgba(12,14,29,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+body{padding-bottom:80px}
+.bg-deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bg-deco::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.10),transparent 70%);filter:blur(40px)}
+.bg-deco::after{content:'';position:absolute;top:200px;left:-200px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(67,56,202,.08),transparent 70%);filter:blur(40px)}
+.nav{position:sticky;top:0;z-index:50;background:rgba(250,250,249,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1180px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:32px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.01em}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#4338ca,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px}
+.nav-links{display:flex;gap:4px;flex:1}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;padding:8px 14px;border-radius:8px;font-weight:500;transition:all .15s}
+.nav-links a.active{background:var(--ink);color:#fff}
+.nav-links a:not(.active):hover{background:var(--bg-2);color:var(--ink)}
+.nav-cta{padding:8px 16px;background:var(--ink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.hero{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:80px 32px 64px;text-align:center}
+.hero-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:var(--surface);border:1px solid var(--border);border-radius:99px;font-size:12px;font-weight:600;color:var(--indigo);margin-bottom:24px;box-shadow:var(--shadow)}
+.hero-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal-2)}
+.hero h1{font-size:72px;font-weight:800;line-height:1.02;letter-spacing:-.035em;margin-bottom:20px;background:linear-gradient(180deg,#0c0e1d 0%,#3a3d52 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;background:linear-gradient(135deg,#7c3aed,#e11d6f);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+.hero p{font-size:20px;color:var(--muted);max-width:640px;margin:0 auto 36px;line-height:1.5;letter-spacing:-.005em}
+.hero-ctas{display:flex;gap:12px;justify-content:center;align-items:center}
+.btn-primary{padding:14px 28px;background:var(--ink);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-secondary{padding:14px 24px;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:12px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer}
+.trust{display:flex;justify-content:center;align-items:center;gap:24px;margin-top:32px;font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+.trust span{display:flex;align-items:center;gap:6px}
+.trust .pip{width:4px;height:4px;border-radius:50%;background:var(--border)}
+.subareas{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 32px 64px}
+.section-label{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.section-label .line{flex:1;height:1px;background:var(--border)}
+.section-label .text{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.18em;text-transform:uppercase}
+.sa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.sa{padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:16px;transition:all .2s;cursor:pointer;position:relative;overflow:hidden}
+.sa:hover{border-color:transparent;box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.sa-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:20px}
+.sa-1 .sa-icon{background:var(--indigo-soft);color:var(--indigo)}
+.sa-2 .sa-icon{background:var(--rose);color:var(--rose-2)}
+.sa-3 .sa-icon{background:var(--amber-soft);color:var(--amber-2)}
+.sa-4 .sa-icon{background:var(--violet-soft);color:var(--violet-2)}
+.sa-num{position:absolute;top:18px;right:20px;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.12em}
+.sa h3{font-size:16px;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}
+.sa p{font-size:13px;color:var(--muted);line-height:1.5}
+.process{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:48px 32px}
+.process-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:48px;display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:center;box-shadow:var(--shadow)}
+.process-left h2{font-size:36px;font-weight:800;letter-spacing:-.025em;line-height:1.1;margin-bottom:14px}
+.process-left h2 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:var(--indigo)}
+.process-left p{font-size:16px;color:var(--muted);line-height:1.6}
+.process-meta{margin-top:24px;display:flex;gap:18px}
+.meta-item{display:flex;flex-direction:column}
+.meta-item .v{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.meta-item .l{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.steps{display:flex;flex-direction:column;gap:8px}
+.step{display:grid;grid-template-columns:32px 1fr;gap:14px;padding:14px;border-radius:12px;transition:background .15s}
+.step:hover{background:var(--bg)}
+.step-num{width:32px;height:32px;border-radius:8px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.step h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.step p{font-size:13px;color:var(--muted)}
+.cta-band{position:relative;z-index:1;max-width:1180px;margin:24px auto 0;padding:0 32px}
+.cta-card{background:linear-gradient(135deg,#4338ca 0%,#7c3aed 50%,#e11d6f 100%);border-radius:24px;padding:48px;text-align:center;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.cta-card::before{content:'';position:absolute;top:-50%;right:-20%;width:60%;height:200%;background:radial-gradient(ellipse,rgba(255,255,255,.15),transparent 60%)}
+.cta-card h3{font-size:32px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px;position:relative}
+.cta-card h3 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+.cta-card p{font-size:15px;opacity:.9;margin-bottom:24px;position:relative}
+.btn-white{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:#fff;color:var(--ink);border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;position:relative;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="bg-deco"></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark">SWD</div>
+      <span>CST 060 Prep</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="active">Home</a>
+      <a href="#">Pretest</a>
+      <a href="#">Study</a>
+      <a href="#">Constructed Response</a>
+      <a href="#">Quiz</a>
+      <a href="#">Flashcards</a>
+    </div>
+    <button class="nav-cta">Begin →</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-pill"><span class="dot"></span> NYSTCE CST 060 · Updated for NYSED Part 200</div>
+  <h1>Pass the SWD exam with <em>confidence</em>.</h1>
+  <p>A complete preparation course for the New York State Students with Disabilities Content Specialty Test. All four subareas, two case studies, and a constructed-response workspace.</p>
+  <div class="hero-ctas">
+    <button class="btn-primary">Take the Pretest <span>→</span></button>
+    <button class="btn-secondary">Browse Modules</button>
+  </div>
+  <div class="trust">
+    <span>64 Multiple-Choice Items</span>
+    <span class="pip"></span>
+    <span>16 Study Modules</span>
+    <span class="pip"></span>
+    <span>2 Case Studies</span>
+    <span class="pip"></span>
+    <span>Aligned to IDEA</span>
+  </div>
+</section>
+
+<section class="subareas">
+  <div class="section-label"><div class="text">Four Subareas</div><div class="line"></div></div>
+  <div class="sa-grid">
+    <div class="sa sa-1"><div class="sa-num">01</div><div class="sa-icon">⚖️</div><h3>Foundations</h3><p>IDEA, FAPE, LRE, Section 504, NYSED Part 200, the IEP process.</p></div>
+    <div class="sa sa-2"><div class="sa-num">02</div><div class="sa-icon">🧩</div><h3>Knowledge of Students</h3><p>SLD, Autism, Emotional Disturbance, ADHD, ID, OHI, sensory.</p></div>
+    <div class="sa sa-3"><div class="sa-num">03</div><div class="sa-icon">📊</div><h3>Assessment & IEP</h3><p>Norm-referenced, CBM, measurable goals, FBA, BIP, transition.</p></div>
+    <div class="sa sa-4"><div class="sa-num">04</div><div class="sa-icon">🧠</div><h3>Instruction</h3><p>UDL, accommodations, PBIS, co-teaching, AT, related services.</p></div>
+  </div>
+</section>
+
+<section class="process">
+  <div class="process-card">
+    <div class="process-left">
+      <h2>A study path designed to <em>actually</em> work.</h2>
+      <p>Diagnostic pretest first. Then targeted study. Then practice the constructed response. Then verify growth with a fresh post-test.</p>
+      <div class="process-meta">
+        <div class="meta-item"><div class="v">6–10h</div><div class="l">Total Time</div></div>
+        <div class="meta-item"><div class="v">5</div><div class="l">Phases</div></div>
+        <div class="meta-item"><div class="v">100%</div><div class="l">Local Storage</div></div>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div><h4>Take the Pretest</h4><p>32 questions across all four subareas establish your baseline.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div><h4>Review Results</h4><p>Domain-by-domain breakdown shows exactly where to focus.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div><h4>Study Weak Areas</h4><p>Deep-dive modules with concept summaries and practice items.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div><h4>Practice Constructed Response</h4><p>Two case studies, full rubric, autosaving draft, exemplar.</p></div></div>
+      <div class="step"><div class="step-num">5</div><div><h4>Take the Post-Test</h4><p>Fresh 32 questions verify your growth and readiness.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="cta-card">
+    <h3>Start your <em>30-minute</em> diagnostic.</h3>
+    <p>No account. No payment. All progress saves locally in your browser.</p>
+    <a href="#" class="btn-white">Take the Pretest <span>→</span></a>
+  </div>
+</section>
+</body>
+</html>

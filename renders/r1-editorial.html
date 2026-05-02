@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>R1 · Editorial Authority</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --ink:#1a2540; --ink-soft:#3b4660;
+  --cream:#f7f1e3; --cream-2:#efe8d7; --paper:#fbf7ec;
+  --gold:#a47e3b; --gold-2:#7a5e2c;
+  --sage:#5b7a5b; --sage-2:#3f5b3f;
+  --crimson:#8a2a2a;
+  --rule:#cbb88c;
+  --muted:#7a7560;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body{padding:0 0 64px}
+.topbar{background:var(--ink);color:var(--cream);padding:10px 0;border-bottom:3px double var(--gold)}
+.topbar-inner{max-width:1080px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;font-family:'Cormorant Garamond',serif;letter-spacing:.04em;font-size:13px;text-transform:uppercase}
+.topbar-inner .left{display:flex;gap:20px}
+.topbar-inner .left a{color:var(--cream);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px;transition:border-color .2s}
+.topbar-inner .left a.active{border-color:var(--gold);color:#fff}
+.topbar-inner .right{display:flex;gap:14px;font-size:11px;color:var(--cream-2)}
+.masthead{padding:56px 32px 28px;text-align:center;border-bottom:1px solid var(--rule);max-width:1080px;margin:0 auto;position:relative}
+.masthead::before,.masthead::after{content:'';position:absolute;left:50%;transform:translateX(-50%);height:1px;background:var(--rule);width:120px}
+.masthead::before{bottom:18px}
+.masthead::after{bottom:14px;width:60px}
+.eyebrow{font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:.36em;text-transform:uppercase;color:var(--gold-2);margin-bottom:14px}
+.title{font-family:'Playfair Display',serif;font-weight:900;font-size:62px;line-height:1.04;color:var(--ink);letter-spacing:-.01em;margin-bottom:14px}
+.title em{font-style:italic;color:var(--gold-2);font-weight:500}
+.kicker{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--ink-soft);max-width:640px;margin:0 auto;line-height:1.4}
+.byline{margin-top:24px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.byline span{color:var(--gold-2)}
+.layout{max-width:1080px;margin:36px auto 0;padding:0 32px;display:grid;grid-template-columns:1fr 280px;gap:48px;align-items:start}
+.main{}
+.sidebar{position:sticky;top:24px}
+.process{background:var(--paper);border:1px solid var(--rule);padding:32px 36px}
+.process .ribbon{display:inline-block;background:var(--ink);color:var(--cream);padding:4px 14px;font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:.3em;text-transform:uppercase;margin-bottom:18px;margin-top:-44px}
+.process h2{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--ink);margin-bottom:20px;letter-spacing:-.01em}
+.steps{display:flex;flex-direction:column;gap:18px}
+.step{display:grid;grid-template-columns:54px 1fr;gap:18px;padding-bottom:18px;border-bottom:1px dotted var(--rule)}
+.step:last-child{border-bottom:none;padding-bottom:0}
+.step-num{font-family:'Playfair Display',serif;font-size:42px;font-weight:900;color:var(--gold);line-height:1;font-style:italic}
+.step-body h3{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.step-body p{font-size:14px;line-height:1.5;color:var(--ink-soft)}
+.subareas{margin-top:36px}
+.subareas h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--ink);margin-bottom:6px;text-align:center}
+.subareas .sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--muted);text-align:center;margin-bottom:24px}
+.sa-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.sa-card{padding:22px 22px 20px;border:1px solid var(--rule);background:#fdf9ec;position:relative}
+.sa-card .roman{position:absolute;top:14px;right:18px;font-family:'Playfair Display',serif;font-style:italic;font-size:14px;color:var(--gold-2);letter-spacing:.1em}
+.sa-card h3{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.sa-card p{font-size:13px;line-height:1.5;color:var(--ink-soft);font-family:'Cormorant Garamond',serif;font-style:italic}
+.cta-block{margin-top:48px;text-align:center;padding:36px 0;border-top:3px double var(--rule);border-bottom:3px double var(--rule)}
+.cta-block .pre{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:var(--ink-soft);margin-bottom:18px}
+.cta{display:inline-block;background:var(--ink);color:var(--cream);padding:18px 56px;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;border:none;cursor:pointer;position:relative;transition:background .2s}
+.cta:hover{background:var(--gold-2)}
+.cta::before,.cta::after{content:'⊱';position:absolute;top:50%;transform:translateY(-50%);color:var(--gold);font-size:14px}
+.cta::before{left:18px}
+.cta::after{right:18px;content:'⊰'}
+.aside-card{background:var(--cream);border:1px solid var(--rule);padding:24px;font-family:'Cormorant Garamond',serif}
+.aside-card .label{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-2);font-weight:700;margin-bottom:12px}
+.aside-card h4{font-family:'Playfair Display',serif;font-size:20px;color:var(--ink);margin-bottom:10px;line-height:1.2}
+.aside-card .quote{font-style:italic;font-size:16px;color:var(--ink-soft);line-height:1.55;border-left:3px solid var(--gold);padding-left:14px;margin-bottom:16px}
+.aside-card .stats{display:flex;flex-direction:column;gap:8px;margin-top:16px;padding-top:16px;border-top:1px dotted var(--rule)}
+.stat{display:flex;justify-content:space-between;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink-soft)}
+.stat strong{color:var(--ink);font-weight:600}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <div class="topbar-inner">
+    <div class="left">
+      <a href="#" class="active">⌂ Home</a>
+      <a href="#">Pretest</a>
+      <a href="#">Study</a>
+      <a href="#">Constructed Response</a>
+      <a href="#">Quick Quiz</a>
+      <a href="#">Flashcards</a>
+    </div>
+    <div class="right">
+      <span>Vol. I · Edition 1</span><span>·</span><span>Theme: Day</span>
+    </div>
+  </div>
+</nav>
+
+<header class="masthead">
+  <div class="eyebrow">New York State · NYSTCE Content Specialty Test 060</div>
+  <h1 class="title">Students <em>with</em> Disabilities</h1>
+  <p class="kicker">A complete preparation course covering all four subareas of the New York State exam, with the constructed-response written assignment.</p>
+  <div class="byline">Aligned to <span>NYSED Part 200</span> · <span>IDEA</span> · <span>Endrew F. (2017)</span></div>
+</header>
+
+<div class="layout">
+  <main class="main">
+    <section class="process">
+      <div class="ribbon">The Method</div>
+      <h2>How This Works</h2>
+      <div class="steps">
+        <div class="step"><div class="step-num">I</div><div class="step-body"><h3>Take the Pretest</h3><p>Thirty-two questions across all four subareas to establish your baseline.</p></div></div>
+        <div class="step"><div class="step-num">II</div><div class="step-body"><h3>Review Your Results</h3><p>Domain-by-domain analysis identifies exactly where to focus your study.</p></div></div>
+        <div class="step"><div class="step-num">III</div><div class="step-body"><h3>Study Your Weak Areas</h3><p>Sixteen deep-dive modules with concept summaries and practice questions.</p></div></div>
+        <div class="step"><div class="step-num">IV</div><div class="step-body"><h3>Practice the Constructed Response</h3><p>Two case studies with rubric, exemplar, and an autosaving draft workspace.</p></div></div>
+        <div class="step"><div class="step-num">V</div><div class="step-body"><h3>Take the Post-Test</h3><p>Measure your growth and confirm readiness with thirty-two fresh questions.</p></div></div>
+      </div>
+    </section>
+
+    <section class="subareas">
+      <h2>The Four Subareas</h2>
+      <p class="sub">covered in proportion to their weight on the examination</p>
+      <div class="sa-grid">
+        <div class="sa-card"><div class="roman">I</div><h3>Foundations of Special Education</h3><p>IDEA, FAPE, LRE, Section 504, NYSED Part 200, the IEP process, family partnerships, ethics &amp; equity.</p></div>
+        <div class="sa-card"><div class="roman">II</div><h3>Knowledge of Students</h3><p>Specific Learning Disabilities, Autism Spectrum Disorder, Emotional Disturbance &amp; ADHD, ID, DD, OHI &amp; sensory.</p></div>
+        <div class="sa-card"><div class="roman">III</div><h3>Assessment &amp; IEP Planning</h3><p>Norm-referenced &amp; CBM, writing measurable goals, FBA &amp; BIP, progress monitoring, transition.</p></div>
+        <div class="sa-card"><div class="roman">IV</div><h3>Instruction &amp; Environment</h3><p>UDL, explicit instruction, accommodations vs. modifications, PBIS, co-teaching, AT, related services.</p></div>
+      </div>
+    </section>
+
+    <div class="cta-block">
+      <p class="pre">Begin with the diagnostic pretest. The journey is sequential.</p>
+      <a href="#" class="cta">Begin the Pretest</a>
+    </div>
+  </main>
+
+  <aside class="sidebar">
+    <div class="aside-card">
+      <div class="label">Editor's Note</div>
+      <h4>Why This Course?</h4>
+      <p class="quote">"The most thorough exam preparation I have encountered for the SWD CST. The constructed-response practice alone is worth the time."</p>
+      <div class="stats">
+        <div class="stat"><span>Multiple choice</span><strong>64 items</strong></div>
+        <div class="stat"><span>Study modules</span><strong>16</strong></div>
+        <div class="stat"><span>Case studies</span><strong>2</strong></div>
+        <div class="stat"><span>Estimated time</span><strong>6–10 hrs</strong></div>
+      </div>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

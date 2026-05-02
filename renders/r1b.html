@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>1B · Glaser NY Magazine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --paper:#f7f0e0;
+  --paper-2:#efe7d0;
+  --navy:#1c2941;
+  --navy-2:#0f1828;
+  --orange:#e85a2c;
+  --orange-2:#c04518;
+  --cream:#fdf8e9;
+  --rule:#1c2941;
+  --muted:#5b5544;
+  --hot:#d92020;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--paper);color:var(--navy);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;font-feature-settings:'liga' 1,'kern' 1;text-rendering:optimizeLegibility}
+body{padding:0 0 96px}
+.topbar{background:var(--navy);color:var(--paper);padding:9px 0;border-bottom:4px solid var(--orange)}
+.topbar-inner{max-width:1100px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;font-family:'Bebas Neue',Impact,sans-serif;font-size:14px;letter-spacing:.18em}
+.topbar a{color:var(--paper);text-decoration:none;padding:1px 0;margin:0 14px}
+.topbar a:first-child{margin-left:0}
+.topbar a.active{color:var(--orange);border-bottom:2px solid var(--orange)}
+.topbar .right{font-family:'Source Serif 4',serif;font-style:italic;font-size:13px;letter-spacing:0;font-weight:400}
+.cover{max-width:1100px;margin:0 auto;padding:36px 32px 24px;border-bottom:1px solid var(--navy)}
+.cover-banner{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--navy)}
+.cover-banner .vol{font-family:'Bebas Neue',Impact,sans-serif;font-size:13px;letter-spacing:.22em;color:var(--navy)}
+.cover-banner .vol b{color:var(--orange-2)}
+.cover-banner .price{font-family:'Source Serif 4',serif;font-style:italic;font-size:13px;color:var(--muted)}
+.masthead{display:grid;grid-template-columns:1fr;gap:0;padding-bottom:14px}
+.eyebrow-bar{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:16px;font-family:'Bebas Neue',Impact,sans-serif;font-size:13px;letter-spacing:.32em;color:var(--orange-2)}
+.eyebrow-bar .b{height:1px;flex:0 0 80px;background:var(--orange-2)}
+.title{font-family:'Playfair Display',serif;font-weight:900;font-size:108px;line-height:.92;color:var(--navy);letter-spacing:-.025em;text-align:center;margin-bottom:6px}
+.title .ital{font-style:italic;font-weight:400;color:var(--orange-2)}
+.subtitle-band{display:flex;align-items:center;gap:20px;margin-top:24px}
+.subtitle-band .rule-l,.subtitle-band .rule-r{flex:1;height:2px;background:var(--navy)}
+.subtitle{font-family:'Source Serif 4',serif;font-style:italic;font-weight:400;font-size:22px;color:var(--navy);text-align:center;line-height:1.4;flex:0 0 auto;max-width:680px}
+.dateline{margin-top:24px;text-align:center;font-family:'Bebas Neue',Impact,sans-serif;font-size:13px;letter-spacing:.28em;color:var(--navy)}
+.dateline span{color:var(--orange-2)}
+.body{max-width:1100px;margin:0 auto;padding:48px 32px 0;display:grid;grid-template-columns:1fr 360px;gap:48px;align-items:start}
+.cover-story{padding-bottom:8px}
+.story-tag{display:inline-block;background:var(--hot);color:var(--cream);font-family:'Bebas Neue',Impact,sans-serif;font-size:13px;letter-spacing:.28em;padding:6px 14px;margin-bottom:16px}
+.story-h{font-family:'Playfair Display',serif;font-weight:900;font-size:46px;color:var(--navy);line-height:1.05;letter-spacing:-.015em;margin-bottom:18px}
+.story-h .ital{font-style:italic;font-weight:400;color:var(--orange-2)}
+.story-deck{font-family:'Source Serif 4',serif;font-size:18px;color:var(--navy-2);line-height:1.55;font-style:italic;margin-bottom:28px;border-left:3px solid var(--orange);padding-left:16px}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:2px solid var(--navy)}
+.step{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:18px 18px 18px 0;border-bottom:1px solid rgba(28,41,65,.18)}
+.step:nth-child(2n){padding-left:18px;border-left:1px dotted rgba(28,41,65,.4)}
+.step-num{font-family:'Playfair Display',serif;font-weight:900;font-size:42px;color:var(--orange);line-height:1;letter-spacing:-.02em;font-feature-settings:'lnum' 1}
+.step-body h3{font-family:'Playfair Display',serif;font-weight:700;font-size:17px;letter-spacing:-.005em;margin-bottom:3px;color:var(--navy)}
+.step-body p{font-family:'Source Serif 4',serif;font-size:14px;line-height:1.5;color:var(--navy-2)}
+.contents{padding-top:48px;margin-top:48px;border-top:4px double var(--navy)}
+.contents-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:24px}
+.contents-h h2{font-family:'Bebas Neue',Impact,sans-serif;font-size:30px;letter-spacing:.18em;color:var(--navy)}
+.contents-h .meta{font-family:'Source Serif 4',serif;font-style:italic;font-size:14px;color:var(--muted)}
+.toc{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--navy)}
+.toc .item{display:grid;grid-template-columns:auto 1fr auto;gap:14px;padding:18px 0;border-bottom:1px solid rgba(28,41,65,.2);align-items:baseline}
+.toc .item:nth-child(2n){padding-left:24px;border-left:1px dotted rgba(28,41,65,.3)}
+.toc .item:nth-child(2n-1){padding-right:24px}
+.toc .num{font-family:'Bebas Neue',Impact,sans-serif;font-size:13px;letter-spacing:.2em;color:var(--orange-2)}
+.toc h3{font-family:'Playfair Display',serif;font-weight:700;font-size:17px;letter-spacing:-.005em;color:var(--navy);line-height:1.25}
+.toc p{font-family:'Source Serif 4',serif;font-size:13px;color:var(--muted);font-style:italic;margin-top:3px}
+.toc .pg{font-family:'Source Serif 4',serif;font-style:italic;font-size:13px;color:var(--orange-2);font-weight:500;align-self:start;padding-top:1px}
+.aside{position:sticky;top:24px;display:flex;flex-direction:column;gap:24px}
+.aside .pull{background:var(--navy);color:var(--cream);padding:32px 28px;position:relative}
+.aside .pull::before{content:'\201C';position:absolute;top:6px;left:14px;font-family:'Playfair Display',serif;font-size:80px;color:var(--orange);line-height:1;font-weight:900}
+.aside .pull p{font-family:'Playfair Display',serif;font-style:italic;font-size:22px;line-height:1.35;font-weight:400;letter-spacing:-.005em;color:var(--cream);margin-top:14px;position:relative}
+.aside .pull cite{display:block;margin-top:14px;font-family:'Bebas Neue',Impact,sans-serif;font-size:12px;letter-spacing:.28em;color:var(--orange);font-style:normal}
+.aside .stats{background:var(--paper-2);padding:24px;border:1px solid var(--navy)}
+.aside .stats h4{font-family:'Bebas Neue',Impact,sans-serif;font-size:14px;letter-spacing:.24em;color:var(--navy);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--navy)}
+.aside .stats .row{display:flex;justify-content:space-between;font-family:'Source Serif 4',serif;font-size:14px;padding:5px 0;border-bottom:1px dotted rgba(28,41,65,.4)}
+.aside .stats .row:last-child{border-bottom:none}
+.aside .stats .row span:last-child{color:var(--orange-2);font-weight:600;font-feature-settings:'lnum' 1}
+.cta-row{margin-top:48px;padding-top:32px;border-top:4px double var(--navy);text-align:center}
+.cta-row .preh{font-family:'Bebas Neue',Impact,sans-serif;font-size:14px;letter-spacing:.32em;color:var(--orange-2);margin-bottom:14px}
+.cta-row h2{font-family:'Playfair Display',serif;font-weight:900;font-style:italic;font-size:36px;color:var(--navy);letter-spacing:-.015em;line-height:1.2;margin-bottom:24px}
+.cta{display:inline-block;background:var(--orange);color:var(--cream);padding:18px 42px;font-family:'Bebas Neue',Impact,sans-serif;font-size:18px;letter-spacing:.28em;text-decoration:none;border:3px solid var(--navy);box-shadow:6px 6px 0 var(--navy);transition:all .15s}
+.cta:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--navy)}
+</style>
+</head>
+<body>
+<nav class="topbar">
+  <div class="topbar-inner">
+    <div>
+      <a href="#" class="active">Home</a>
+      <a href="#">Pretest</a>
+      <a href="#">Study</a>
+      <a href="#">Constructed&nbsp;Response</a>
+      <a href="#">Quiz</a>
+      <a href="#">Cards</a>
+    </div>
+    <div class="right">The candidate's reader.</div>
+  </div>
+</nav>
+
+<header class="cover">
+  <div class="cover-banner">
+    <div class="vol"><b>VOL. I</b> · NUMBER 060 · NEW YORK STATE EDITION</div>
+    <div class="price">For the candidate of record.</div>
+  </div>
+  <div class="masthead">
+    <div class="eyebrow-bar"><span class="b"></span> NYSTCE Content Specialty Test <span class="b"></span></div>
+    <h1 class="title">Students <span class="ital">with</span> Disabilities</h1>
+    <div class="subtitle-band">
+      <span class="rule-l"></span>
+      <p class="subtitle">A complete preparation course covering all four subareas, with the constructed-response written assignment.</p>
+      <span class="rule-r"></span>
+    </div>
+    <div class="dateline">Aligned to <span>NYSED Part 200</span> · <span>IDEA</span> · <span>Endrew F. (2017)</span></div>
+  </div>
+</header>
+
+<div class="body">
+  <main>
+    <section class="cover-story">
+      <span class="story-tag">The Course</span>
+      <h2 class="story-h">A study path designed for the New York State <span class="ital">teaching candidate.</span></h2>
+      <p class="story-deck">Diagnostic pretest first. Then targeted study. Then the constructed response. Then verification with a fresh post-test. Five phases, sequential, ten hours.</p>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h3>Take the Pretest</h3><p>Thirty-two questions across all four subareas establish your baseline.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h3>Review Your Results</h3><p>Domain-by-domain breakdown shows precisely where to focus.</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h3>Study Weak Areas</h3><p>Sixteen deep-dive modules with concept summaries and practice.</p></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><h3>Practice the Constructed Response</h3><p>Two case studies with rubric, exemplar, autosaving draft.</p></div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-body"><h3>Take the Post-Test</h3><p>Fresh thirty-two questions verify your growth and readiness.</p></div></div>
+      </div>
+    </section>
+
+    <section class="contents">
+      <div class="contents-h">
+        <h2>Table of Contents</h2>
+        <div class="meta">The four subareas of the examination</div>
+      </div>
+      <div class="toc">
+        <div class="item"><div class="num">I</div><div><h3>Foundations of Special Education</h3><p>IDEA · FAPE · LRE · 504 · Part 200</p></div><div class="pg">p. 1</div></div>
+        <div class="item"><div class="num">II</div><div><h3>Knowledge of Students with Disabilities</h3><p>SLD · ASD · ED &amp; ADHD · ID/DD/OHI/sensory</p></div><div class="pg">p. 23</div></div>
+        <div class="item"><div class="num">III</div><div><h3>Assessment &amp; Individualized Program Planning</h3><p>Norm-ref · CBM · SMART goals · FBA · BIP</p></div><div class="pg">p. 47</div></div>
+        <div class="item"><div class="num">IV</div><div><h3>Instruction &amp; Learning Environment</h3><p>UDL · Accommodations · PBIS · Co-teaching</p></div><div class="pg">p. 71</div></div>
+      </div>
+    </section>
+
+    <section class="cta-row">
+      <div class="preh">Now is the time</div>
+      <h2>Begin with the diagnostic.<br/>The course is sequential.</h2>
+      <a href="#" class="cta">Begin the Pretest</a>
+    </section>
+  </main>
+
+  <aside class="aside">
+    <div class="pull">
+      <p>The most thorough exam preparation I have encountered for the New York SWD CST. The constructed-response practice alone is worth the time.</p>
+      <cite>— A New York Teacher</cite>
+    </div>
+    <div class="stats">
+      <h4>This Issue</h4>
+      <div class="row"><span>Multiple-choice items</span><span>64</span></div>
+      <div class="row"><span>Study modules</span><span>16</span></div>
+      <div class="row"><span>Case studies</span><span>02</span></div>
+      <div class="row"><span>Estimated time</span><span>6–10 hr</span></div>
+      <div class="row"><span>Local-only progress</span><span>Yes</span></div>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

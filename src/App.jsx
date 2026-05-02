@@ -1,40 +1,30 @@
-import { useState, useEffect, useContext, useMemo, createContext } from "react";
+import { useState, useEffect, useMemo } from "react";
 
-const LIGHT = {
-  navy:'#1a3557', navyMid:'#24497a', navyLight:'#e8f0fb',
-  amber:'#c47d0e', amberBg:'#fef9ec', amberBorder:'#f5c842',
-  green:'#166534', greenBg:'#dcfce7', greenBorder:'#86efac',
-  red:'#991b1b', redBg:'#fee2e2', redBorder:'#fca5a5',
-  gray:'#475569', grayLight:'#f1f5f9', border:'#e2e8f0',
-  text:'#1e293b', muted:'#64748b', white:'#ffffff',
-  surface:'#ffffff', bg:'#f8fafc',
-  navBg:'#1a3557', navActiveText:'#1a3557',
-  navInactive:'#93c5fd', navDisabled:'#2d4a63', navBorder:'#2d4a63',
-  resetText:'#f87171', resetLabel:'#fca5a5',
-  resetYesBg:'#dc2626', resetNoText:'#94a3b8',
+// ─── DESIGN SYSTEM (Tschichold Penguin · editorial cream/orange) ──
+const T = {
+  paper:'#f1ead7', paper2:'#e8e0c8', paper3:'#fdf8e9',
+  ink:'#161410', ink2:'#3a342a',
+  orange:'#d4612a', orange2:'#a14a1f',
+  rule:'#161410', muted:'#6e6655',
+  green:'#3d6b3d', greenBg:'#dde9d8',
+  red:'#9a2929', redBg:'#f0dcdc',
+  hairline:'rgba(22,20,16,.18)',
+  serif:`'EB Garamond',Garamond,Georgia,serif`,
+  sans:`'Inter',system-ui,-apple-system,sans-serif`,
 };
-const DARK = {
-  navy:'#60a5fa', navyMid:'#3b82f6', navyLight:'#1e3a5f',
-  amber:'#fbbf24', amberBg:'#3f2e0e', amberBorder:'#b45309',
-  green:'#86efac', greenBg:'#14532d', greenBorder:'#15803d',
-  red:'#fca5a5', redBg:'#3f1a1a', redBorder:'#7f1d1d',
-  gray:'#cbd5e1', grayLight:'#1e293b', border:'#334155',
-  text:'#e2e8f0', muted:'#94a3b8', white:'#0f172a',
-  surface:'#1e293b', bg:'#0f172a',
-  navBg:'#0b1628', navActiveText:'#0f172a',
-  navInactive:'#94a3b8', navDisabled:'#475569', navBorder:'#334155',
-  resetText:'#f87171', resetLabel:'#fca5a5',
-  resetYesBg:'#dc2626', resetNoText:'#94a3b8',
+
+const baseStyles = {
+  html: { background: T.paper, color: T.ink, fontFamily: T.serif, WebkitFontSmoothing: 'antialiased' },
+  cap: { fontFamily: T.sans, fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', fontWeight: 600 },
+  capSm: { fontFamily: T.sans, fontSize: 10, letterSpacing: '.32em', textTransform: 'uppercase', fontWeight: 600, color: T.muted },
+  ital: { fontStyle: 'italic', fontWeight: 400 },
 };
-const ThemeContext = createContext({ C: LIGHT, dark: false, toggle: () => {} });
-const useC = () => useContext(ThemeContext).C;
-const useTheme = () => useContext(ThemeContext);
 
 const SUBTESTS = {
-  FOUND:    { label:'Foundations',              emoji:'⚖️' },
-  STUDENTS: { label:'Students w/ Disabilities', emoji:'🧩' },
-  ASSESS:   { label:'Assessment & IEP',         emoji:'📊' },
-  INSTRUCT: { label:'Instruction',              emoji:'🧠' },
+  FOUND:    { label:'Foundations',              roman:'I' },
+  STUDENTS: { label:'Knowledge of Students',    roman:'II' },
+  ASSESS:   { label:'Assessment & IEP',         roman:'III' },
+  INSTRUCT: { label:'Instruction',              roman:'IV' },
 };
 
 const PRETEST = [
@@ -602,404 +592,459 @@ const INITIAL_STATE = {
   crPromptId: CR_PROMPTS[0].id, crView:'prompt', crSelfScore:{},
 };
 
-const ProgressBar = ({ value, color, label }) => {
-  const C = useC();
-  const barColor = color || C.navy;
-  return (
-    <div>
-      <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
-        <span style={{fontSize:13,color:C.muted}}>{label}</span>
-        <span style={{fontSize:13,fontWeight:700,color:barColor}}>{value}%</span>
-      </div>
-      <div style={{background:C.border,borderRadius:99,height:8,overflow:'hidden'}}>
-        <div style={{width:`${value}%`,height:'100%',background:barColor,borderRadius:99,transition:'width 0.6s ease'}}/>
-      </div>
-    </div>
-  );
-};
 
-const Pill = ({text, color, bg}) => (
-  <span style={{fontSize:11,fontWeight:700,color,background:bg,padding:'2px 8px',borderRadius:99,textTransform:'uppercase',letterSpacing:'0.05em'}}>{text}</span>
+// ─── PRIMITIVES ────────────────────────────────────────────
+const Cap = ({ children, color = T.muted, mb = 0 }) => (
+  <div style={{ ...baseStyles.capSm, color, marginBottom: mb }}>{children}</div>
+);
+const Pill = ({ children, color = T.orange2 }) => (
+  <span style={{ ...baseStyles.cap, fontSize: 10, color, padding: '3px 0', borderTop: `1px solid ${color}`, borderBottom: `1px solid ${color}`, paddingLeft: 8, paddingRight: 8 }}>{children}</span>
+);
+const Rule = ({ thick = 1, color = T.ink, my = 0 }) => (
+  <div style={{ height: thick, background: color, marginTop: my, marginBottom: my }} />
+);
+const Card = ({ children, style = {} }) => (
+  <div style={{ background: T.paper3, border: `1px solid ${T.ink}`, padding: 24, ...style }}>{children}</div>
+);
+const ProgressRow = ({ value, label, color = T.orange2 }) => (
+  <div style={{ marginBottom: 14 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontFamily: T.serif, fontSize: 14 }}>
+      <span style={{ color: T.ink2 }}>{label}</span>
+      <span style={{ color, fontWeight: 600, fontFeatureSettings: "'tnum' 1" }}>{value}%</span>
+    </div>
+    <div style={{ background: T.paper2, border: `1px solid ${T.hairline}`, height: 6, position: 'relative' }}>
+      <div style={{ width: `${value}%`, height: '100%', background: color, transition: 'width 0.6s ease' }} />
+    </div>
+  </div>
+);
+const Btn = ({ children, onClick, variant = 'primary', disabled = false, style = {} }) => {
+  const base = { padding: '14px 32px', fontFamily: T.sans, fontSize: 12, fontWeight: 600, letterSpacing: '.28em', textTransform: 'uppercase', border: 'none', cursor: disabled ? 'default' : 'pointer', transition: 'background .15s', display: 'inline-block', textDecoration: 'none' };
+  const variants = {
+    primary: { background: disabled ? T.muted : T.ink, color: T.paper },
+    ghost: { background: 'transparent', color: T.ink, border: `1px solid ${T.ink}`, padding: '13px 31px' },
+    accent: { background: disabled ? T.muted : T.orange2, color: T.paper },
+  };
+  return <button onClick={disabled ? undefined : onClick} disabled={disabled} style={{ ...base, ...variants[variant], ...style }}>{children}</button>;
+};
+const Page = ({ children, narrow = false }) => (
+  <div style={{ maxWidth: narrow ? 720 : 1120, margin: '0 auto', padding: '32px 40px 96px' }}>{children}</div>
 );
 
-const Card = ({children, style={}}) => {
-  const C = useC();
+// ─── NAVBAR ────────────────────────────────────────────────
+const NAV_ITEMS = [
+  { id: 'welcome',    label: 'Home',     always: true },
+  { id: 'flashcards', label: 'Cards',    always: true },
+  { id: 'quiz',       label: 'Quiz',     always: true },
+  { id: 'pretest',    label: 'Pretest',  always: true },
+  { id: 'cresponse',  label: 'Constructed Response', always: true },
+  { id: 'results',    label: 'Results',  needs: 'pretestScores' },
+  { id: 'modules',    label: 'Study',    needs: 'pretestScores' },
+  { id: 'posttest',   label: 'Post-Test',needs: 'pretestScores' },
+  { id: 'comparison', label: 'Report',   needs: 'postScores' },
+];
+const NavBar = ({ st, onNav, onReset, onConfirmReset, onCancelReset }) => {
+  const active = st.phase === 'module' ? 'modules'
+    : (st.phase === 'quizPicker' || st.phase === 'quizRun' || st.phase === 'quizDone') ? 'quiz'
+    : st.phase;
   return (
-    <div style={{background:C.surface,borderRadius:16,padding:28,boxShadow:'0 2px 16px rgba(0,0,0,0.07)',border:`1px solid ${C.border}`,...style}}>{children}</div>
-  );
-};
-
-const Welcome = ({onStart}) => {
-  const C = useC();
-  return (
-  <div style={{maxWidth:640,margin:'0 auto',padding:'40px 20px',fontFamily:'Georgia, serif'}}>
-    <div style={{textAlign:'center',marginBottom:40}}>
-      <div style={{fontSize:56,marginBottom:12}}>🧑‍🏫</div>
-      <h1 style={{fontSize:26,fontWeight:700,color:C.navy,margin:'0 0 8px',letterSpacing:'-0.5px',lineHeight:1.2}}>
-        NY State Students with Disabilities (CST 060) Exam Prep
-      </h1>
-      <p style={{fontSize:15,color:C.gray,margin:0,fontFamily:'system-ui'}}>
-        All four subareas + constructed response · Aligned to NYSED Part 200 & IDEA
-      </p>
-    </div>
-    <Card style={{marginBottom:20}}>
-      <h2 style={{fontSize:17,fontWeight:700,color:C.navy,margin:'0 0 16px'}}>How This Works</h2>
-      {[
-        ['1','Take the Pretest','32 questions across all four subareas'],
-        ['2','Review Your Results','See which domains need attention'],
-        ['3','Study Your Weak Areas','Deep-dive modules with practice questions'],
-        ['4','Practice Constructed Response','Case study, rubric, exemplar'],
-        ['5','Take the Post-Test','Measure your growth and confirm readiness'],
-      ].map(([n,title,desc]) => (
-        <div key={n} style={{display:'flex',gap:14,marginBottom:14,alignItems:'flex-start'}}>
-          <div style={{width:28,height:28,borderRadius:'50%',background:C.navy,color:C.white,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,flexShrink:0,fontFamily:'system-ui'}}>{n}</div>
-          <div>
-            <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:2,fontFamily:'system-ui'}}>{title}</div>
-            <div style={{fontSize:13,color:C.muted,fontFamily:'system-ui'}}>{desc}</div>
-          </div>
+    <div style={{ background: T.paper2, borderBottom: `1px solid ${T.ink}`, padding: '10px 0', position: 'sticky', top: 0, zIndex: 200 }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0, flex: 1 }}>
+          {NAV_ITEMS.map(item => {
+            const avail = item.always || !!st[item.needs];
+            const isActive = active === item.id;
+            return (
+              <button key={item.id} onClick={() => avail && onNav(item.id)} disabled={!avail}
+                style={{ ...baseStyles.cap, fontSize: 11, color: isActive ? T.ink : (avail ? T.ink2 : T.muted), padding: '2px 0', margin: '0 14px 0 0', background: 'none', border: 'none', borderBottom: `2px solid ${isActive ? T.orange : 'transparent'}`, cursor: avail ? 'pointer' : 'default', whiteSpace: 'nowrap' }}>
+                {item.label}
+              </button>
+            );
+          })}
         </div>
-      ))}
-    </Card>
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:28}}>
-      {Object.entries(SUBTESTS).map(([k,v]) => (
-        <Card key={k} style={{textAlign:'center',padding:16}}>
-          <div style={{fontSize:28,marginBottom:4}}>{v.emoji}</div>
-          <div style={{fontSize:12,fontWeight:700,color:C.navy,fontFamily:'system-ui'}}>{v.label}</div>
-        </Card>
-      ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          {!st.confirmReset
+            ? <button onClick={onReset} style={{ ...baseStyles.cap, fontSize: 10, color: T.red, background: 'none', border: 'none', cursor: 'pointer' }}>Reset</button>
+            : <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ ...baseStyles.cap, fontSize: 9, color: T.muted }}>Start over?</span>
+                <button onClick={onConfirmReset} style={{ ...baseStyles.cap, fontSize: 9, color: T.paper, background: T.red, padding: '3px 8px', border: 'none', cursor: 'pointer' }}>Yes</button>
+                <button onClick={onCancelReset} style={{ ...baseStyles.cap, fontSize: 9, color: T.muted, background: 'none', padding: '3px 8px', border: `1px solid ${T.muted}`, cursor: 'pointer' }}>No</button>
+              </div>}
+        </div>
+      </div>
     </div>
-    <button onClick={onStart} style={{width:'100%',padding:'16px',background:C.navy,color:C.white,border:'none',borderRadius:12,fontSize:16,fontWeight:700,cursor:'pointer',fontFamily:'Georgia, serif',letterSpacing:'0.02em'}}>
-      Begin Pretest →
-    </button>
-  </div>
   );
 };
 
-const QuestionScreen = ({questions, answers, qIndex, onAnswer, onNav, onSubmit, phase}) => {
-  const C = useC();
+// ─── WELCOME ───────────────────────────────────────────────
+const Welcome = ({ onStart }) => (
+  <Page>
+    <div style={{ margin: '0 0 32px', borderTop: `1px solid ${T.ink}`, borderBottom: `1px solid ${T.ink}`, padding: '18px 24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
+        <span style={baseStyles.capSm}>A Course in Five Phases</span>
+        <span style={{ width: 38, height: 38, border: `1.5px solid ${T.ink}`, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, fontWeight: 500, color: T.ink }}>𝒮</span>
+        <span style={baseStyles.capSm}>No. 060 · Edition I</span>
+      </div>
+    </div>
+    <header style={{ textAlign: 'center', padding: '0 0 40px', borderBottom: `3px solid ${T.ink}` }}>
+      <Cap mb={32}>New York State · Content Specialty Test</Cap>
+      <h1 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 84, lineHeight: 1.02, color: T.ink, letterSpacing: '-.01em', marginBottom: 22 }}>
+        Students <span style={{ ...baseStyles.ital, color: T.orange2 }}>with</span> Disabilities
+      </h1>
+      <p style={{ fontFamily: T.serif, fontSize: 21, color: T.ink2, maxWidth: 680, margin: '0 auto 28px', lineHeight: 1.5, fontStyle: 'italic' }}>
+        A complete preparation course covering all four subareas of the New York State examination, with the constructed-response written assignment.
+      </p>
+      <div style={{ ...baseStyles.cap, fontSize: 11, color: T.muted }}>
+        <span style={{ color: T.ink, fontWeight: 600 }}>NYSED Part 200</span>
+        <span style={{ margin: '0 12px', color: T.orange }}>·</span>
+        <span style={{ color: T.ink, fontWeight: 600 }}>IDEA</span>
+        <span style={{ margin: '0 12px', color: T.orange }}>·</span>
+        <span style={{ color: T.ink, fontWeight: 600 }}>Endrew F. (2017)</span>
+      </div>
+    </header>
+    <section style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1fr', gap: 0, padding: '48px 0 0' }}>
+      <div style={{ padding: '0 32px' }}>
+        <div style={{ marginBottom: 28, paddingBottom: 14, borderBottom: `1px solid ${T.ink}` }}>
+          <Cap color={T.orange2} mb={8}>— The Method</Cap>
+          <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 36, color: T.ink, letterSpacing: '-.005em', lineHeight: 1 }}>How This Works</h2>
+        </div>
+        {[
+          ['1.', 'Take the Pretest', 'Thirty-two questions across all four subareas establish your baseline.'],
+          ['2.', 'Review Your Results', 'A domain-by-domain analysis shows precisely where to focus.'],
+          ['3.', 'Study Your Weak Areas', 'Sixteen deep-dive modules with concept summaries and practice questions.'],
+          ['4.', 'Practice the Constructed Response', 'Two case studies with rubric, exemplar, and an autosaving draft workspace.'],
+          ['5.', 'Take the Post-Test', 'Measure your growth and confirm readiness with thirty-two fresh questions.'],
+        ].map(([n, title, desc], i, arr) => (
+          <div key={n} style={{ display: 'grid', gridTemplateColumns: '48px 1fr', gap: 18, padding: '18px 0', borderBottom: i < arr.length - 1 ? `1px solid ${T.hairline}` : 'none' }}>
+            <div style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 30, color: T.orange2, fontWeight: 500, lineHeight: 1.05 }}>{n}</div>
+            <div>
+              <h3 style={{ fontFamily: T.serif, fontWeight: 600, fontSize: 18, marginBottom: 4, lineHeight: 1.2 }}>{title}</h3>
+              <p style={{ fontFamily: T.serif, fontSize: 15, color: T.ink2, lineHeight: 1.55 }}>{desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{ background: T.ink, width: 1 }} />
+      <div style={{ padding: '0 32px' }}>
+        <div style={{ marginBottom: 28, paddingBottom: 14, borderBottom: `1px solid ${T.ink}` }}>
+          <Cap color={T.orange2} mb={8}>— The Four Subareas</Cap>
+          <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 36, color: T.ink, letterSpacing: '-.005em', lineHeight: 1 }}>Contents</h2>
+        </div>
+        {Object.entries(SUBTESTS).map(([k, v], i, arr) => (
+          <div key={k} style={{ padding: '18px 0', borderBottom: i < arr.length - 1 ? `1px solid ${T.hairline}` : 'none' }}>
+            <Cap color={T.orange2} mb={5}>Subarea {v.roman}</Cap>
+            <h3 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 21, letterSpacing: '-.005em', lineHeight: 1.2, marginBottom: 5 }}>{v.label}</h3>
+          </div>
+        ))}
+      </div>
+    </section>
+    <div style={{ textAlign: 'center', marginTop: 64, paddingTop: 48, borderTop: `3px solid ${T.ink}` }}>
+      <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, color: T.ink2, marginBottom: 24, lineHeight: 1.5, maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
+        Begin with the diagnostic pretest. The course is sequential.
+      </p>
+      <Btn onClick={onStart} variant="primary" style={{ padding: '18px 56px', fontSize: 12, letterSpacing: '.32em' }}>Begin the Pretest</Btn>
+    </div>
+    <div style={{ marginTop: 56, paddingTop: 24, borderTop: `1px solid ${T.ink}`, textAlign: 'center', fontFamily: T.serif, fontStyle: 'italic', fontSize: 13, color: T.muted, lineHeight: 1.6, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto' }}>
+      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink, marginBottom: 6, fontStyle: 'normal' }}>Colophon</div>
+      Set in EB Garamond. Composed for the New York State teaching candidate, in the manner of a Penguin Classic. Aligned to NYSED Part 200 and the Individuals with Disabilities Education Act.
+    </div>
+  </Page>
+);
+
+// ─── QUESTION SCREEN ───────────────────────────────────────
+const QuestionScreen = ({ questions, answers, qIndex, onAnswer, onNav, onSubmit, phase }) => {
   const q = questions[qIndex];
   const selected = answers[qIndex];
   const total = questions.length;
   const answeredCount = Object.keys(answers).length;
-  const subtestInfo = SUBTESTS[q.s];
+  const subtest = SUBTESTS[q.s];
   return (
-    <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
-        <div>
-          <Pill text={subtestInfo.label} color={C.navy} bg={C.navyLight}/>
-          <span style={{marginLeft:8,fontSize:12,color:C.muted}}>{q.d}</span>
-        </div>
-        <span style={{fontSize:13,color:C.muted}}>Q {qIndex+1} of {total}</span>
+    <Page narrow>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18, paddingBottom: 12, borderBottom: `1px solid ${T.ink}` }}>
+        <div><Pill color={T.orange2}>Subarea {subtest.roman} · {subtest.label}</Pill></div>
+        <div style={{ ...baseStyles.cap, fontSize: 11, color: T.muted }}>Question {qIndex + 1} of {total}</div>
       </div>
-      <div style={{height:4,background:C.border,borderRadius:99,marginBottom:28,overflow:'hidden'}}>
-        <div style={{width:`${((qIndex+1)/total)*100}%`,height:'100%',background:C.navy,borderRadius:99,transition:'width 0.3s'}}/>
+      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink2, marginBottom: 14 }}>{q.d}</div>
+      <div style={{ height: 3, background: T.paper2, marginBottom: 36, position: 'relative' }}>
+        <div style={{ width: `${((qIndex + 1) / total) * 100}%`, height: '100%', background: T.orange2, transition: 'width .3s' }} />
       </div>
-      <Card style={{marginBottom:20}}>
-        <p style={{fontSize:16,lineHeight:1.6,color:C.text,margin:0,fontFamily:'Georgia, serif',fontWeight:500}}>{q.q}</p>
-      </Card>
-      <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:28}}>
-        {q.a.map((opt,i) => {
+      <p style={{ fontFamily: T.serif, fontSize: 24, lineHeight: 1.45, color: T.ink, marginBottom: 32, fontWeight: 500 }}>{q.q}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36 }}>
+        {q.a.map((opt, i) => {
           const isSelected = selected === i;
           return (
             <button key={i} onClick={() => onAnswer(qIndex, i)}
-              style={{textAlign:'left',padding:'14px 18px',borderRadius:12,border:`2px solid ${isSelected ? C.navy : C.border}`,background:isSelected ? C.navyLight : C.surface,cursor:'pointer',fontSize:15,color:C.text,transition:'all 0.15s',display:'flex',alignItems:'center',gap:12,fontFamily:'system-ui'}}>
-              <span style={{width:24,height:24,borderRadius:'50%',border:`2px solid ${isSelected ? C.navy : C.border}`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:isSelected ? C.navy : C.muted,flexShrink:0,background:isSelected ? C.surface : 'transparent'}}>{['A','B','C','D'][i]}</span>
-              {opt}
+              style={{ textAlign: 'left', padding: '16px 20px', border: `1px solid ${isSelected ? T.ink : T.hairline}`, background: isSelected ? T.paper2 : T.paper3, cursor: 'pointer', fontFamily: T.serif, fontSize: 17, color: T.ink, transition: 'all .15s', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+              <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 22, color: isSelected ? T.orange2 : T.muted, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
+              <span style={{ lineHeight: 1.5 }}>{opt}</span>
             </button>
           );
         })}
       </div>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <button onClick={() => onNav(-1)} disabled={qIndex===0}
-          style={{padding:'10px 20px',borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:qIndex===0?C.muted:C.navy,cursor:qIndex===0?'default':'pointer',fontSize:14,fontWeight:600}}>← Back</button>
-        <span style={{fontSize:13,color:C.muted}}>{answeredCount}/{total} answered</span>
+      <Rule color={T.ink} my={0} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20 }}>
+        <Btn onClick={() => onNav(-1)} variant="ghost" disabled={qIndex === 0} style={{ padding: '10px 22px' }}>← Back</Btn>
+        <span style={{ ...baseStyles.cap, fontSize: 10, color: T.muted }}>{answeredCount} of {total} answered</span>
         {qIndex < total - 1
-          ? <button onClick={() => onNav(1)} style={{padding:'10px 20px',borderRadius:10,border:'none',background:C.navy,color:C.white,cursor:'pointer',fontSize:14,fontWeight:600}}>Next →</button>
-          : <button onClick={onSubmit} disabled={answeredCount < total}
-              style={{padding:'10px 20px',borderRadius:10,border:'none',background:answeredCount<total?C.muted:C.amber,color:C.white,cursor:answeredCount<total?'default':'pointer',fontSize:14,fontWeight:600}}>{answeredCount < total ? `Answer all (${total - answeredCount} left)` : `Submit ${phase} ✓`}</button>
-        }
+          ? <Btn onClick={() => onNav(1)} variant="primary" style={{ padding: '10px 22px' }}>Next →</Btn>
+          : <Btn onClick={onSubmit} variant="accent" disabled={answeredCount < total} style={{ padding: '10px 22px' }}>{answeredCount < total ? `${total - answeredCount} unanswered` : `Submit ${phase}`}</Btn>}
       </div>
-    </div>
+    </Page>
   );
 };
 
-const Results = ({scores, weakDomains, onContinue, isPost, pretestScores, sourceQuestions, sourceAnswers}) => {
-  const C = useC();
-  const [reviewing, setReviewing] = useState(false);
-  const overall = Object.values(scores.subtests).reduce((a,b) => ({correct:a.correct+b.correct,total:a.total+b.total}),{correct:0,total:0});
-  const overallPct = pct(overall.correct, overall.total);
-  const missed = sourceQuestions ? sourceQuestions.map((q,i) => ({q,i,user:sourceAnswers?.[i]})).filter(x => x.user !== x.q.c) : [];
-  if (reviewing && missed.length > 0) return <ReviewIncorrect items={missed} onBack={() => setReviewing(false)}/>;
+// ─── REVIEW INCORRECT ──────────────────────────────────────
+const ReviewIncorrect = ({ items, onBack }) => {
+  const [idx, setIdx] = useState(0);
+  const cur = items[idx];
+  const q = cur.q;
   return (
-    <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <div style={{textAlign:'center',marginBottom:28}}>
-        <div style={{fontSize:48,marginBottom:8}}>{overallPct >= 70 ? '🎉' : '📊'}</div>
-        <h2 style={{fontSize:24,fontWeight:700,color:C.navy,margin:'0 0 4px',fontFamily:'Georgia,serif'}}>{isPost ? 'Post-Test Results' : 'Pretest Results'}</h2>
-        <p style={{fontSize:15,color:C.muted,margin:0}}>Overall Score: <strong style={{color:C.navy}}>{overallPct}%</strong> ({overall.correct}/{overall.total})</p>
+    <Page narrow>
+      <button onClick={onBack} style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 18 }}>← Back to results</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18, paddingBottom: 12, borderBottom: `1px solid ${T.ink}` }}>
+        <Pill color={T.red}>Missed · Subarea {SUBTESTS[q.s]?.roman}</Pill>
+        <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted }}>Item {idx + 1} of {items.length}</div>
       </div>
-      <Card style={{marginBottom:20}}>
-        <h3 style={{fontSize:15,fontWeight:700,color:C.navy,margin:'0 0 16px'}}>Results by Subarea</h3>
-        {Object.entries(scores.subtests).map(([k,v]) => (
-          <div key={k} style={{marginBottom:14}}>
-            <ProgressBar value={pct(v.correct,v.total)} label={`${SUBTESTS[k]?.emoji} ${SUBTESTS[k]?.label} (${v.correct}/${v.total})`} color={pct(v.correct,v.total)>=70?C.green:C.red}/>
-          </div>
-        ))}
-      </Card>
-      <Card style={{marginBottom:20}}>
-        <h3 style={{fontSize:15,fontWeight:700,color:C.navy,margin:'0 0 16px'}}>Results by Domain</h3>
-        {Object.entries(scores.domains).map(([d,v]) => {
-          const p = pct(v.correct,v.total);
-          const needsWork = p < 70;
+      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink2, marginBottom: 14 }}>{q.d}</div>
+      <p style={{ fontFamily: T.serif, fontSize: 22, lineHeight: 1.45, color: T.ink, marginBottom: 24, fontWeight: 500 }}>{q.q}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+        {q.a.map((opt, i) => {
+          const isCorrect = i === q.c;
+          const isUser = i === cur.user;
+          let bg = T.paper3, border = T.hairline, marker = null;
+          if (isCorrect) { bg = T.greenBg; border = T.green; marker = <span style={{ ...baseStyles.cap, fontSize: 9, color: T.green, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✓ Correct</span>; }
+          else if (isUser) { bg = T.redBg; border = T.red; marker = <span style={{ ...baseStyles.cap, fontSize: 9, color: T.red, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✗ Your answer</span>; }
           return (
-            <div key={d} style={{marginBottom:12,padding:'10px 14px',borderRadius:10,background:needsWork?C.redBg:'transparent',border:`1px solid ${needsWork?C.redBorder:C.border}`}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-                <span style={{fontSize:13,fontWeight:600,color:C.text}}>{d}</span>
-                {needsWork && <Pill text="Review" color={C.red} bg={C.redBg}/>}
-              </div>
-              <ProgressBar value={p} label={`${v.correct}/${v.total} correct`} color={needsWork?C.red:C.green}/>
+            <div key={i} style={{ padding: '14px 18px', border: `1px solid ${border}`, background: bg, fontFamily: T.serif, fontSize: 16, color: T.ink, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+              <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 20, color: T.ink2, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
+              <span style={{ flex: 1, lineHeight: 1.5 }}>{opt}</span>
+              {marker}
             </div>
           );
         })}
-      </Card>
+      </div>
+      <div style={{ background: T.paper2, border: `1px solid ${T.ink}`, padding: '20px 24px', marginBottom: 28 }}>
+        <div style={{ ...baseStyles.cap, fontSize: 10, color: T.orange2, marginBottom: 8 }}>— Annotation</div>
+        <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.6, color: T.ink, fontStyle: 'italic' }}>{q.r}</p>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14 }}>
+        <Btn onClick={() => setIdx(Math.max(0, idx - 1))} variant="ghost" disabled={idx === 0} style={{ padding: '10px 22px' }}>← Previous</Btn>
+        <Btn onClick={() => idx < items.length - 1 ? setIdx(idx + 1) : onBack()} variant="primary" style={{ padding: '10px 22px' }}>{idx < items.length - 1 ? 'Next →' : 'Done'}</Btn>
+      </div>
+    </Page>
+  );
+};
+
+// ─── RESULTS ───────────────────────────────────────────────
+const Results = ({ scores, weakDomains, onContinue, isPost, pretestScores, sourceQuestions, sourceAnswers }) => {
+  const [reviewing, setReviewing] = useState(false);
+  const overall = Object.values(scores.subtests).reduce((a, b) => ({ correct: a.correct + b.correct, total: a.total + b.total }), { correct: 0, total: 0 });
+  const overallPct = pct(overall.correct, overall.total);
+  const missed = sourceQuestions ? sourceQuestions.map((q, i) => ({ q, i, user: sourceAnswers?.[i] })).filter(x => x.user !== x.q.c) : [];
+  if (reviewing && missed.length > 0) return <ReviewIncorrect items={missed} onBack={() => setReviewing(false)} />;
+  return (
+    <Page narrow>
+      <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 28, borderBottom: `3px solid ${T.ink}` }}>
+        <Cap mb={12}>{isPost ? 'Post-Test · Final Examination' : 'Pretest · Diagnostic'}</Cap>
+        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em', marginBottom: 14 }}>
+          {isPost ? 'Final Results' : 'Diagnostic Results'}
+        </h2>
+        <div style={{ fontFamily: T.serif, fontSize: 22, color: T.ink2, fontStyle: 'italic' }}>
+          Overall score: <span style={{ color: T.orange2, fontWeight: 600, fontStyle: 'normal' }}>{overallPct}%</span> <span style={{ color: T.muted }}>({overall.correct} of {overall.total})</span>
+        </div>
+      </header>
+      <section style={{ marginBottom: 36 }}>
+        <Cap color={T.orange2} mb={14}>— By Subarea</Cap>
+        {Object.entries(scores.subtests).map(([k, v]) => (
+          <ProgressRow key={k} value={pct(v.correct, v.total)} label={`Subarea ${SUBTESTS[k]?.roman} · ${SUBTESTS[k]?.label} (${v.correct}/${v.total})`} color={pct(v.correct, v.total) >= 70 ? T.green : T.red} />
+        ))}
+      </section>
+      <section style={{ marginBottom: 36, paddingTop: 28, borderTop: `1px solid ${T.ink}` }}>
+        <Cap color={T.orange2} mb={14}>— By Domain</Cap>
+        {Object.entries(scores.domains).map(([d, v]) => {
+          const p = pct(v.correct, v.total);
+          const needsWork = p < 70;
+          return (
+            <div key={d} style={{ marginBottom: 14, padding: '12px 16px', background: needsWork ? T.redBg : 'transparent', border: `1px solid ${needsWork ? T.red : T.hairline}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ fontFamily: T.serif, fontSize: 15, fontWeight: 600, color: T.ink }}>{d}</span>
+                {needsWork && <Pill color={T.red}>Review</Pill>}
+              </div>
+              <ProgressRow value={p} label={`${v.correct} of ${v.total} correct`} color={needsWork ? T.red : T.green} />
+            </div>
+          );
+        })}
+      </section>
       {isPost && pretestScores && (
-        <Card style={{marginBottom:20,background:C.amberBg,border:`1px solid ${C.amberBorder}`}}>
-          <h3 style={{fontSize:15,fontWeight:700,color:C.amber,margin:'0 0 12px'}}>📈 Your Growth</h3>
-          {Object.entries(scores.domains).map(([d,v]) => {
+        <section style={{ marginBottom: 36, padding: '28px 32px', background: T.paper2, border: `1px solid ${T.ink}` }}>
+          <Cap color={T.orange2} mb={14}>— Growth Across the Course</Cap>
+          {Object.entries(scores.domains).map(([d, v]) => {
             const pre = pretestScores.domains[d]; if (!pre) return null;
-            const preP = pct(pre.correct,pre.total); const postP = pct(v.correct,v.total); const diff = postP - preP;
+            const preP = pct(pre.correct, pre.total); const postP = pct(v.correct, v.total); const diff = postP - preP;
             return (
-              <div key={d} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 0',borderBottom:`1px solid ${C.amberBorder}`}}>
-                <span style={{fontSize:13,color:C.text}}>{d}</span>
-                <span style={{fontSize:13,fontWeight:700,color:diff>0?C.green:diff<0?C.red:C.muted}}>{preP}% → {postP}% ({diff>0?'+':''}{diff}%)</span>
+              <div key={d} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 0', borderBottom: `1px solid ${T.hairline}`, fontFamily: T.serif, fontSize: 15 }}>
+                <span style={{ color: T.ink2 }}>{d}</span>
+                <span style={{ color: diff > 0 ? T.green : diff < 0 ? T.red : T.muted, fontWeight: 600, fontFeatureSettings: "'tnum' 1" }}>{preP}% → {postP}% <span style={{ marginLeft: 6 }}>({diff > 0 ? '+' : ''}{diff}%)</span></span>
               </div>
             );
           })}
-        </Card>
+        </section>
       )}
       {!isPost && weakDomains.length > 0 && (
-        <div style={{background:C.amberBg,border:`1px solid ${C.amberBorder}`,borderRadius:14,padding:20,marginBottom:20}}>
-          <p style={{fontSize:14,color:C.amber,fontWeight:700,margin:'0 0 8px'}}>📚 Recommended Study Areas ({weakDomains.length} domains below 70%)</p>
-          {weakDomains.map(d => <div key={d} style={{fontSize:13,color:C.text,padding:'3px 0'}}>→ {d}</div>)}
-        </div>
+        <section style={{ marginBottom: 36, padding: '24px 32px', background: T.paper3, border: `1px solid ${T.orange}` }}>
+          <Cap color={T.orange2} mb={10}>— Recommended Study</Cap>
+          <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 15, color: T.ink2, marginBottom: 12 }}>{weakDomains.length} {weakDomains.length === 1 ? 'domain' : 'domains'} below 70%. The course advises study before the post-test.</p>
+          {weakDomains.map(d => (
+            <div key={d} style={{ fontFamily: T.serif, fontSize: 15, color: T.ink, padding: '4px 0' }}>→ {d}</div>
+          ))}
+        </section>
       )}
       {missed.length > 0 && (
-        <button onClick={() => setReviewing(true)} style={{width:'100%',padding:'14px',background:C.surface,color:C.navy,border:`2px solid ${C.navy}`,borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:'Georgia,serif',marginBottom:12}}>🔍 Review Missed Questions ({missed.length})</button>
+        <Btn onClick={() => setReviewing(true)} variant="ghost" style={{ width: '100%', padding: '14px', marginBottom: 14 }}>Review the {missed.length} Missed Question{missed.length > 1 ? 's' : ''}</Btn>
       )}
-      <button onClick={onContinue} style={{width:'100%',padding:'16px',background:C.navy,color:C.white,border:'none',borderRadius:12,fontSize:16,fontWeight:700,cursor:'pointer',fontFamily:'Georgia,serif'}}>{isPost ? 'Done! View Final Summary' : weakDomains.length > 0 ? `Start Study Modules (${weakDomains.length}) →` : 'Skip to Post-Test →'}</button>
-    </div>
+      <Btn onClick={onContinue} variant="primary" style={{ width: '100%', padding: '16px' }}>{isPost ? 'View Final Summary' : weakDomains.length > 0 ? `Begin Study Modules (${weakDomains.length})` : 'Proceed to the Post-Test'}</Btn>
+    </Page>
   );
 };
 
-const ReviewIncorrect = ({items, onBack}) => {
-  const C = useC();
-  const [idx, setIdx] = useState(0);
-  const cur = items[idx]; const q = cur.q;
-  return (
-    <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <button onClick={onBack} style={{background:'none',border:'none',color:C.muted,cursor:'pointer',fontSize:14,marginBottom:16,padding:0}}>← Back to results</button>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-        <Pill text={SUBTESTS[q.s]?.label || 'Review'} color={C.navy} bg={C.navyLight}/>
-        <span style={{fontSize:13,color:C.muted}}>Missed {idx+1} of {items.length}</span>
-      </div>
-      <div style={{fontSize:12,color:C.muted,marginBottom:8}}>{q.d}</div>
-      <Card style={{marginBottom:16}}>
-        <p style={{fontSize:16,lineHeight:1.6,color:C.text,margin:0,fontFamily:'Georgia,serif',fontWeight:500}}>{q.q}</p>
-      </Card>
-      <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:16}}>
-        {q.a.map((opt,i) => {
-          const isCorrect = i === q.c; const isUser = i === cur.user;
-          let bg = C.surface, border = C.border, color = C.text;
-          if (isCorrect) { bg = C.greenBg; border = C.greenBorder; }
-          else if (isUser) { bg = C.redBg; border = C.redBorder; }
-          return (
-            <div key={i} style={{padding:'14px 18px',borderRadius:12,border:`2px solid ${border}`,background:bg,color,fontSize:15,display:'flex',gap:12,alignItems:'flex-start'}}>
-              <span style={{fontWeight:700,flexShrink:0}}>{['A','B','C','D'][i]}.</span>
-              <span style={{flex:1}}>{opt}</span>
-              {isCorrect && <span style={{color:C.green,fontWeight:700}}>✓ Correct</span>}
-              {isUser && !isCorrect && <span style={{color:C.red,fontWeight:700}}>✗ Your answer</span>}
+// ─── MODULE HUB + LEARNING MODULE ──────────────────────────
+const ModuleHub = ({ weakDomains, completedModules, onSelect, onSkip }) => (
+  <Page narrow>
+    <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
+      <Cap mb={12}>The Course of Study</Cap>
+      <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em' }}>Your Study Plan</h2>
+      <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2, marginTop: 12 }}>Complete each module below to strengthen your weak areas.</p>
+    </header>
+    <div>
+      {weakDomains.map((d, i) => {
+        const mod = MODULES[d];
+        const done = completedModules.includes(d);
+        return (
+          <div key={d} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 0', borderBottom: i < weakDomains.length - 1 ? `1px solid ${T.hairline}` : `1px solid ${T.ink}` }}>
+            <div style={{ flex: 1 }}>
+              <Cap color={T.orange2} mb={4}>Module {String(i + 1).padStart(2, '0')}</Cap>
+              <h3 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 22, letterSpacing: '-.005em', marginBottom: 4 }}>{d}</h3>
+              <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 14, color: T.muted }}>{mod?.concepts?.length || 0} concepts · {mod?.practice?.length || 0} practice questions</p>
             </div>
-          );
-        })}
-      </div>
-      <Card style={{background:C.grayLight,marginBottom:16}}>
-        <p style={{fontSize:13,color:C.text,margin:0,lineHeight:1.6}}><strong>Explanation:</strong> {q.r}</p>
-      </Card>
-      <div style={{display:'flex',justifyContent:'space-between',gap:12}}>
-        <button onClick={() => setIdx(Math.max(0,idx-1))} disabled={idx===0} style={{flex:1,padding:'12px',borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:idx===0?C.muted:C.navy,cursor:idx===0?'default':'pointer',fontSize:14,fontWeight:600}}>← Previous</button>
-        <button onClick={() => idx < items.length-1 ? setIdx(idx+1) : onBack()} style={{flex:1,padding:'12px',borderRadius:10,border:'none',background:C.navy,color:C.white,cursor:'pointer',fontSize:14,fontWeight:600}}>{idx < items.length - 1 ? 'Next →' : 'Done'}</button>
-      </div>
-    </div>
-  );
-};
-
-const ModuleHub = ({weakDomains, completedModules, onSelect, onSkip}) => {
-  const C = useC();
-  return (
-  <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-    <div style={{textAlign:'center',marginBottom:28}}>
-      <h2 style={{fontSize:22,fontWeight:700,color:C.navy,margin:'0 0 6px',fontFamily:'Georgia,serif'}}>Your Study Plan</h2>
-      <p style={{fontSize:14,color:C.muted,margin:0}}>Complete the modules below to strengthen your weak areas</p>
-    </div>
-    {weakDomains.map(d => {
-      const mod = MODULES[d];
-      const done = completedModules.includes(d);
-      return (
-        <Card key={d} style={{marginBottom:12}}>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div style={{display:'flex',alignItems:'center',gap:12}}>
-              <div style={{fontSize:28}}>{mod?.icon || '📘'}</div>
-              <div>
-                <div style={{fontSize:15,fontWeight:700,color:C.navy}}>{d}</div>
-                <div style={{fontSize:12,color:C.muted}}>{mod?.concepts?.length || 0} concepts · 3 practice questions</div>
-              </div>
-            </div>
-            <button onClick={() => onSelect(d)}
-              style={{padding:'8px 18px',borderRadius:10,border:'none',background:done?C.greenBg:C.navy,color:done?C.green:C.white,cursor:'pointer',fontSize:13,fontWeight:700}}>
-              {done ? '✓ Done' : 'Study →'}
-            </button>
+            <Btn onClick={() => onSelect(d)} variant={done ? 'ghost' : 'primary'} style={{ padding: '10px 22px' }}>{done ? '✓ Completed' : 'Begin →'}</Btn>
           </div>
-        </Card>
-      );
-    })}
-    <div style={{marginTop:24,textAlign:'center'}}>
-      <p style={{fontSize:13,color:C.muted,marginBottom:12}}>
-        {completedModules.length}/{weakDomains.length} modules completed
-      </p>
-      <button onClick={onSkip} style={{padding:'14px 32px',background:completedModules.length===weakDomains.length?C.navy:C.gray,color:C.white,border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:'Georgia,serif'}}>
-        {completedModules.length === weakDomains.length ? 'Start Post-Test →' : 'Skip to Post-Test →'}
-      </button>
+        );
+      })}
     </div>
-  </div>
-  );
-};
+    <div style={{ marginTop: 36, textAlign: 'center', paddingTop: 24, borderTop: `1px solid ${T.ink}` }}>
+      <p style={{ ...baseStyles.cap, fontSize: 11, color: T.muted, marginBottom: 16 }}>{completedModules.length} of {weakDomains.length} modules completed</p>
+      <Btn onClick={onSkip} variant={completedModules.length === weakDomains.length ? 'primary' : 'ghost'} style={{ padding: '14px 36px' }}>{completedModules.length === weakDomains.length ? 'Begin Post-Test →' : 'Skip to Post-Test →'}</Btn>
+    </div>
+  </Page>
+);
 
-const LearningModule = ({domain, phase, pqIndex, pAnswers, onPAnswer, onBack, onStartPractice, onFinish}) => {
-  const C = useC();
+const LearningModule = ({ domain, phase, pqIndex, pAnswers, onPAnswer, onBack, onStartPractice, onFinish }) => {
   const mod = MODULES[domain];
   const pq = mod.practice[pqIndex];
   const pSelected = pAnswers[pqIndex];
-
   if (phase === 'content') return (
-    <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <button onClick={onBack} style={{background:'none',border:'none',color:C.muted,cursor:'pointer',fontSize:14,marginBottom:20,padding:0}}>← Back to modules</button>
-      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:24}}>
-        <span style={{fontSize:36}}>{mod.icon}</span>
-        <h2 style={{fontSize:22,fontWeight:700,color:C.navy,margin:0,fontFamily:'Georgia,serif'}}>{domain}</h2>
-      </div>
-      {mod.concepts.map((c,i) => (
-        <Card key={i} style={{marginBottom:14,borderLeft:`4px solid ${C.navy}`}}>
-          <h3 style={{fontSize:15,fontWeight:700,color:C.navy,margin:'0 0 8px'}}>{c.title}</h3>
-          <p style={{fontSize:14,lineHeight:1.7,color:C.text,margin:0}}>{c.body}</p>
-        </Card>
+    <Page narrow>
+      <button onClick={onBack} style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 24 }}>← Back to study plan</button>
+      <Cap color={T.orange2} mb={12}>— Module · Concepts</Cap>
+      <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 44, color: T.ink, letterSpacing: '-.01em', lineHeight: 1.05, marginBottom: 28, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>{domain}</h2>
+      {mod.concepts.map((c, i) => (
+        <article key={i} style={{ marginBottom: 24, padding: '24px 28px', background: T.paper3, borderLeft: `3px solid ${T.orange2}`, border: `1px solid ${T.hairline}` }}>
+          <Cap color={T.orange2} mb={6}>§ {String(i + 1).padStart(2, '0')}</Cap>
+          <h3 style={{ fontFamily: T.serif, fontWeight: 600, fontSize: 22, color: T.ink, marginBottom: 10, letterSpacing: '-.005em' }}>{c.title}</h3>
+          <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.65, color: T.ink }}>{c.body}</p>
+        </article>
       ))}
-      <button onClick={onStartPractice} style={{width:'100%',marginTop:8,padding:'16px',background:C.amber,color:C.white,border:'none',borderRadius:12,fontSize:16,fontWeight:700,cursor:'pointer',fontFamily:'Georgia,serif'}}>
-        Practice Questions →
-      </button>
-    </div>
+      <Btn onClick={onStartPractice} variant="accent" style={{ width: '100%', marginTop: 24, padding: '18px' }}>Begin Practice Questions →</Btn>
+    </Page>
   );
-
   return (
-    <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <div style={{marginBottom:20}}>
-        <Pill text={domain} color={C.navy} bg={C.navyLight}/>
-        <span style={{marginLeft:8,fontSize:12,color:C.muted}}>Practice Q {pqIndex+1} of {mod.practice.length}</span>
-      </div>
-      <Card style={{marginBottom:16}}>
-        <p style={{fontSize:16,lineHeight:1.6,color:C.text,margin:0,fontFamily:'Georgia,serif',fontWeight:500}}>{pq.q}</p>
-      </Card>
-      <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
-        {pq.a.map((opt,i) => {
+    <Page narrow>
+      <Cap color={T.orange2} mb={8}>{domain} · Practice</Cap>
+      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, marginBottom: 24 }}>Question {pqIndex + 1} of {mod.practice.length}</div>
+      <p style={{ fontFamily: T.serif, fontSize: 22, lineHeight: 1.45, color: T.ink, marginBottom: 24, fontWeight: 500 }}>{pq.q}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+        {pq.a.map((opt, i) => {
           const isSelected = pSelected === i;
           const showFeedback = pSelected !== undefined;
           const isCorrect = i === pq.c;
-          let bg = C.surface, border = C.border, color = C.text;
-          if (showFeedback && isCorrect) { bg = C.greenBg; border = C.greenBorder; }
-          else if (showFeedback && isSelected && !isCorrect) { bg = C.redBg; border = C.redBorder; }
-          else if (isSelected) { bg = C.navyLight; border = C.navy; }
+          let bg = T.paper3, border = T.hairline, color = T.ink;
+          if (showFeedback && isCorrect) { bg = T.greenBg; border = T.green; }
+          else if (showFeedback && isSelected && !isCorrect) { bg = T.redBg; border = T.red; }
+          else if (isSelected) { bg = T.paper2; border = T.ink; }
           return (
-            <button key={i} onClick={() => !showFeedback && onPAnswer(pqIndex, i)}
-              style={{textAlign:'left',padding:'14px 18px',borderRadius:12,border:`2px solid ${border}`,background:bg,cursor:showFeedback?'default':'pointer',fontSize:15,color,display:'flex',gap:12,alignItems:'flex-start',fontFamily:'system-ui'}}>
-              <span style={{fontWeight:700,flexShrink:0}}>{['A','B','C','D'][i]}.</span>
-              {opt}
-              {showFeedback && isCorrect && <span style={{marginLeft:'auto',color:C.green}}>✓</span>}
-              {showFeedback && isSelected && !isCorrect && <span style={{marginLeft:'auto',color:C.red}}>✗</span>}
+            <button key={i} onClick={() => !showFeedback && onPAnswer(pqIndex, i)} disabled={showFeedback}
+              style={{ textAlign: 'left', padding: '14px 18px', border: `1px solid ${border}`, background: bg, cursor: showFeedback ? 'default' : 'pointer', fontFamily: T.serif, fontSize: 16, color, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+              <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 20, color: T.ink2, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
+              <span style={{ flex: 1, lineHeight: 1.5 }}>{opt}</span>
+              {showFeedback && isCorrect && <span style={{ ...baseStyles.cap, fontSize: 9, color: T.green, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✓</span>}
+              {showFeedback && isSelected && !isCorrect && <span style={{ ...baseStyles.cap, fontSize: 9, color: T.red, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✗</span>}
             </button>
           );
         })}
       </div>
       {pSelected !== undefined && (
-        <Card style={{background:C.grayLight,marginBottom:16}}>
-          <p style={{fontSize:13,color:C.text,margin:0,lineHeight:1.6}}>
-            <strong>Explanation:</strong> {pq.r}
-          </p>
-        </Card>
+        <div style={{ background: T.paper2, border: `1px solid ${T.ink}`, padding: '20px 24px', marginBottom: 20 }}>
+          <Cap color={T.orange2} mb={8}>— Annotation</Cap>
+          <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.6, color: T.ink, fontStyle: 'italic' }}>{pq.r}</p>
+        </div>
       )}
       {pSelected !== undefined && (
         pqIndex < mod.practice.length - 1
-          ? <button onClick={() => onPAnswer('next')} style={{width:'100%',padding:'14px',background:C.navy,color:C.white,border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer'}}>Next Question →</button>
-          : <button onClick={onFinish} style={{width:'100%',padding:'14px',background:C.green,color:C.white,border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer'}}>✓ Complete Module</button>
+          ? <Btn onClick={() => onPAnswer('next')} variant="primary" style={{ width: '100%', padding: '14px' }}>Next Question →</Btn>
+          : <Btn onClick={onFinish} variant="accent" style={{ width: '100%', padding: '14px' }}>✓ Complete Module</Btn>
       )}
-    </div>
+    </Page>
   );
 };
 
-const DomainGrid = ({onSelect, getCounts}) => {
-  const C = useC();
-  const groups = { FOUND:[], STUDENTS:[], ASSESS:[], INSTRUCT:[] };
+// ─── DOMAIN GRID (used by Flashcards + Quiz pickers) ───────
+const DomainGrid = ({ onSelect, getCounts }) => {
+  const groups = { FOUND: [], STUDENTS: [], ASSESS: [], INSTRUCT: [] };
   Object.keys(MODULES).forEach(d => {
     const subtest = (PRETEST.find(q => q.d === d) || POSTTEST.find(q => q.d === d) || {}).s || 'FOUND';
     groups[subtest].push(d);
   });
   return (
-    <>
+    <div>
       {Object.entries(groups).map(([k, domains]) => domains.length === 0 ? null : (
-        <div key={k} style={{marginBottom:18}}>
-          <div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>
-            {SUBTESTS[k]?.emoji} {SUBTESTS[k]?.label}
+        <div key={k} style={{ marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${T.ink}` }}>
+            <Cap color={T.orange2}>Subarea {SUBTESTS[k]?.roman}</Cap>
+            <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink }}>{SUBTESTS[k]?.label}</span>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-            {domains.map(d => {
-              const mod = MODULES[d];
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+            {domains.map((d, i) => {
               const meta = getCounts ? getCounts(d) : null;
+              const isLeft = i % 2 === 0;
               return (
                 <button key={d} onClick={() => onSelect(d)}
-                  style={{textAlign:'left',padding:'12px 14px',borderRadius:12,border:`1px solid ${C.border}`,background:C.surface,cursor:'pointer',display:'flex',alignItems:'center',gap:10,fontFamily:'system-ui'}}>
-                  <span style={{fontSize:24}}>{mod?.icon || '📘'}</span>
-                  <span style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:700,color:C.text,lineHeight:1.2}}>{d}</div>
-                    {meta && <div style={{fontSize:11,color:C.muted,marginTop:2}}>{meta}</div>}
-                  </span>
+                  style={{ textAlign: 'left', padding: '14px 18px', border: 'none', borderBottom: `1px solid ${T.hairline}`, borderRight: isLeft ? `1px solid ${T.hairline}` : 'none', background: T.paper3, cursor: 'pointer', fontFamily: T.serif }}>
+                  <div style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 16, color: T.ink, lineHeight: 1.3, marginBottom: 4 }}>{d}</div>
+                  {meta && <div style={{ ...baseStyles.cap, fontSize: 9, color: T.muted }}>{meta}</div>}
                 </button>
               );
             })}
           </div>
         </div>
       ))}
-    </>
+    </div>
   );
 };
 
-const Flashcards = ({st, up}) => {
-  const C = useC();
-  if (!st.fcDomain) {
-    return (
-      <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-        <div style={{textAlign:'center',marginBottom:24}}>
-          <div style={{fontSize:40,marginBottom:8}}>🃏</div>
-          <h2 style={{fontSize:22,fontWeight:700,color:C.navy,margin:'0 0 4px',fontFamily:'Georgia,serif'}}>Flashcards</h2>
-          <p style={{fontSize:14,color:C.muted,margin:0}}>Pick a domain to study key concepts</p>
-        </div>
-        <DomainGrid
-          getCounts={d => `${MODULES[d].concepts.length} concepts`}
-          onSelect={d => {
-            const order = shuffle(MODULES[d].concepts.map((_, i) => i));
-            up({ fcDomain: d, fcOrder: order, fcPos: 0, fcFlipped: false, fcKnown: [] });
-          }}
-        />
-      </div>
-    );
-  }
-
+// ─── FLASHCARDS ────────────────────────────────────────────
+const Flashcards = ({ st, up }) => {
+  if (!st.fcDomain) return (
+    <Page narrow>
+      <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
+        <Cap mb={12}>The Reading Cards</Cap>
+        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em' }}>Flashcards</h2>
+        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2, marginTop: 12 }}>Choose a domain to study its key concepts.</p>
+      </header>
+      <DomainGrid getCounts={d => `${MODULES[d].concepts.length} concepts`} onSelect={d => {
+        const order = shuffle(MODULES[d].concepts.map((_, i) => i));
+        up({ fcDomain: d, fcOrder: order, fcPos: 0, fcFlipped: false, fcKnown: [] });
+      }} />
+    </Page>
+  );
   const mod = MODULES[st.fcDomain];
   const order = st.fcOrder.length ? st.fcOrder : mod.concepts.map((_, i) => i);
   const remaining = order.filter(idx => !st.fcKnown.includes(idx));
@@ -1008,480 +1053,271 @@ const Flashcards = ({st, up}) => {
   const conceptIdx = remaining[safePos] ?? order[0];
   const concept = mod.concepts[conceptIdx];
   const isKnown = st.fcKnown.includes(conceptIdx);
-
   const advance = (delta) => {
     if (remaining.length === 0) return;
     const next = (safePos + delta + remaining.length) % remaining.length;
     up({ fcPos: next, fcFlipped: false });
   };
-
   return (
-    <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <button onClick={() => up({ fcDomain:null, fcOrder:[], fcPos:0, fcFlipped:false, fcKnown:[] })}
-        style={{background:'none',border:'none',color:C.muted,cursor:'pointer',fontSize:14,marginBottom:16,padding:0}}>← Pick another domain</button>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
-        <span style={{fontSize:28}}>{mod.icon}</span>
-        <h2 style={{fontSize:20,fontWeight:700,color:C.navy,margin:0,fontFamily:'Georgia,serif'}}>{st.fcDomain}</h2>
-      </div>
-      <p style={{fontSize:12,color:C.muted,margin:'0 0 16px'}}>
-        {allKnown
-          ? `All ${order.length} cards marked known.`
-          : `Card ${safePos + 1} of ${remaining.length} · ${st.fcKnown.length} marked known`}
+    <Page narrow>
+      <button onClick={() => up({ fcDomain: null, fcOrder: [], fcPos: 0, fcFlipped: false, fcKnown: [] })} style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 18 }}>← Choose another domain</button>
+      <Cap color={T.orange2} mb={6}>{st.fcDomain}</Cap>
+      <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 14, color: T.muted, marginBottom: 20 }}>
+        {allKnown ? `All ${order.length} cards marked known.` : `Card ${safePos + 1} of ${remaining.length} · ${st.fcKnown.length} marked known`}
       </p>
-
       {!allKnown && (
         <div onClick={() => up({ fcFlipped: !st.fcFlipped })}
-          style={{minHeight:240,borderRadius:16,padding:32,marginBottom:16,
-            background:st.fcFlipped ? C.amberBg : C.surface,
-            border:`2px solid ${st.fcFlipped ? C.amberBorder : C.border}`,
-            boxShadow:'0 2px 16px rgba(0,0,0,0.07)',cursor:'pointer',
-            display:'flex',flexDirection:'column',justifyContent:'center'}}>
-          <div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:12}}>
-            {st.fcFlipped ? 'Detail' : 'Concept'} · tap to flip
-          </div>
+          style={{ minHeight: 280, padding: 36, marginBottom: 20, background: st.fcFlipped ? T.paper2 : T.paper3, border: `1px solid ${T.ink}`, borderTop: `3px solid ${T.orange2}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Cap color={T.orange2} mb={16}>{st.fcFlipped ? '— Detail · tap to flip' : '— Concept · tap to flip'}</Cap>
           {!st.fcFlipped
-            ? <div style={{fontSize:22,fontWeight:700,color:C.navy,fontFamily:'Georgia,serif',lineHeight:1.3}}>{concept.title}</div>
-            : <div style={{fontSize:15,color:C.text,lineHeight:1.7}}>{concept.body}</div>}
+            ? <div style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 32, color: T.ink, lineHeight: 1.2, letterSpacing: '-.01em' }}>{concept.title}</div>
+            : <div style={{ fontFamily: T.serif, fontSize: 17, color: T.ink, lineHeight: 1.7 }}>{concept.body}</div>}
         </div>
       )}
-
       {allKnown && (
-        <Card style={{marginBottom:16,textAlign:'center'}}>
-          <div style={{fontSize:36,marginBottom:8}}>🎉</div>
-          <p style={{fontSize:15,color:C.text,margin:0}}>You've marked every card known. Reset the deck or pick a new domain.</p>
+        <Card style={{ textAlign: 'center', marginBottom: 20 }}>
+          <Cap color={T.green} mb={8}>— Completed</Cap>
+          <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink, marginTop: 8 }}>You have marked every card known. Reset the deck or choose a new domain.</p>
         </Card>
       )}
-
-      <div style={{display:'flex',gap:8,marginBottom:10}}>
-        <button onClick={() => advance(-1)} disabled={allKnown}
-          style={{flex:1,padding:'12px',borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:allKnown?C.muted:C.navy,cursor:allKnown?'default':'pointer',fontSize:14,fontWeight:600}}>← Prev</button>
-        <button onClick={() => up({ fcFlipped: !st.fcFlipped })} disabled={allKnown}
-          style={{flex:1,padding:'12px',borderRadius:10,border:'none',background:allKnown?C.gray:C.navy,color:C.white,cursor:allKnown?'default':'pointer',fontSize:14,fontWeight:700}}>Flip</button>
-        <button onClick={() => advance(1)} disabled={allKnown}
-          style={{flex:1,padding:'12px',borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:allKnown?C.muted:C.navy,cursor:allKnown?'default':'pointer',fontSize:14,fontWeight:600}}>Next →</button>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+        <Btn onClick={() => advance(-1)} variant="ghost" disabled={allKnown} style={{ flex: 1, padding: '12px' }}>← Prev</Btn>
+        <Btn onClick={() => up({ fcFlipped: !st.fcFlipped })} variant="primary" disabled={allKnown} style={{ flex: 1, padding: '12px' }}>Flip</Btn>
+        <Btn onClick={() => advance(1)} variant="ghost" disabled={allKnown} style={{ flex: 1, padding: '12px' }}>Next →</Btn>
       </div>
-
-      <div style={{display:'flex',gap:8}}>
-        <button
-          onClick={() => {
-            if (allKnown) return;
-            const nextKnown = isKnown ? st.fcKnown.filter(i => i !== conceptIdx) : [...st.fcKnown, conceptIdx];
-            up({ fcKnown: nextKnown, fcFlipped: false, fcPos: 0 });
-          }}
-          disabled={allKnown}
-          style={{flex:2,padding:'12px',borderRadius:10,border:`1px solid ${isKnown?C.green:C.border}`,background:isKnown?C.greenBg:C.surface,color:isKnown?C.green:C.text,cursor:allKnown?'default':'pointer',fontSize:13,fontWeight:700}}>
-          {isKnown ? '✓ Marked known (tap to unmark)' : 'Mark known'}
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button onClick={() => {
+          if (allKnown) return;
+          const nextKnown = isKnown ? st.fcKnown.filter(i => i !== conceptIdx) : [...st.fcKnown, conceptIdx];
+          up({ fcKnown: nextKnown, fcFlipped: false, fcPos: 0 });
+        }} disabled={allKnown}
+          style={{ ...baseStyles.cap, fontSize: 10, flex: 2, padding: '12px', border: `1px solid ${isKnown ? T.green : T.ink}`, background: isKnown ? T.greenBg : T.paper3, color: isKnown ? T.green : T.ink, cursor: allKnown ? 'default' : 'pointer' }}>
+          {isKnown ? '✓ Marked known · tap to unmark' : 'Mark known'}
         </button>
-        <button onClick={() => up({ fcOrder: shuffle(order), fcPos: 0, fcFlipped: false })}
-          style={{flex:1,padding:'12px',borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:C.navy,cursor:'pointer',fontSize:13,fontWeight:700}}>🔀 Shuffle</button>
-        <button onClick={() => up({ fcKnown: [], fcPos: 0, fcFlipped: false })}
-          style={{flex:1,padding:'12px',borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:C.muted,cursor:'pointer',fontSize:13,fontWeight:700}}>↺ Reset deck</button>
+        <Btn onClick={() => up({ fcOrder: shuffle(order), fcPos: 0, fcFlipped: false })} variant="ghost" style={{ flex: 1, padding: '12px', fontSize: 10 }}>Shuffle</Btn>
+        <Btn onClick={() => up({ fcKnown: [], fcPos: 0, fcFlipped: false })} variant="ghost" style={{ flex: 1, padding: '12px', fontSize: 10 }}>Reset</Btn>
       </div>
-    </div>
+    </Page>
   );
 };
 
-const QuizPicker = ({pool, onStart}) => {
-  const C = useC();
+// ─── QUIZ PICKER + RESULTS ─────────────────────────────────
+const QuizPicker = ({ pool, onStart }) => {
   const [len, setLen] = useState(10);
   return (
-    <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <div style={{textAlign:'center',marginBottom:20}}>
-        <div style={{fontSize:40,marginBottom:8}}>⚡</div>
-        <h2 style={{fontSize:22,fontWeight:700,color:C.navy,margin:'0 0 4px',fontFamily:'Georgia,serif'}}>Quick Quiz</h2>
-        <p style={{fontSize:14,color:C.muted,margin:0}}>Pick a domain and quiz length</p>
-      </div>
-      <div style={{display:'flex',gap:8,marginBottom:18,justifyContent:'center'}}>
+    <Page narrow>
+      <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
+        <Cap mb={12}>The Brief Examination</Cap>
+        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em' }}>Quick Quiz</h2>
+        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2, marginTop: 12 }}>Choose a domain and quiz length.</p>
+      </header>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 28, justifyContent: 'center' }}>
         {[5, 10].map(n => (
           <button key={n} onClick={() => setLen(n)}
-            style={{padding:'10px 22px',borderRadius:10,border:`2px solid ${len===n?C.navy:C.border}`,background:len===n?C.navyLight:C.surface,color:len===n?C.navy:C.text,fontSize:14,fontWeight:700,cursor:'pointer'}}>
+            style={{ ...baseStyles.cap, fontSize: 11, padding: '12px 28px', border: `1px solid ${len === n ? T.ink : T.hairline}`, background: len === n ? T.paper2 : T.paper3, color: len === n ? T.ink : T.muted, cursor: 'pointer' }}>
             {n} questions
           </button>
         ))}
       </div>
-      <DomainGrid
-        getCounts={d => `${pool[d]?.length || 0} questions in pool`}
-        onSelect={d => {
-          const available = pool[d] || [];
-          if (available.length === 0) return;
-          const take = Math.min(len, available.length);
-          onStart(d, len, shuffle(available).slice(0, take));
-        }}
-      />
-    </div>
+      <DomainGrid getCounts={d => `${pool[d]?.length || 0} questions in pool`} onSelect={d => {
+        const available = pool[d] || [];
+        if (available.length === 0) return;
+        const take = Math.min(len, available.length);
+        onStart(d, len, shuffle(available).slice(0, take));
+      }} />
+    </Page>
   );
 };
 
-const QuizResults = ({domain, qs, answers, onRetry, onPick}) => {
-  const C = useC();
+const QuizResults = ({ domain, qs, answers, onRetry, onPick }) => {
   const [reviewing, setReviewing] = useState(false);
   const correct = qs.filter((q, i) => answers[i] === q.c).length;
   const p = pct(correct, qs.length);
   const missed = qs.map((q, i) => ({ q, i, user: answers[i] })).filter(x => x.user !== x.q.c);
-
-  if (reviewing && missed.length > 0) {
-    return <ReviewIncorrect items={missed} onBack={() => setReviewing(false)}/>;
-  }
-
+  if (reviewing && missed.length > 0) return <ReviewIncorrect items={missed} onBack={() => setReviewing(false)} />;
   return (
-    <div style={{maxWidth:680,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <div style={{textAlign:'center',marginBottom:24}}>
-        <div style={{fontSize:48,marginBottom:8}}>{p >= 70 ? '🎉' : '📊'}</div>
-        <h2 style={{fontSize:22,fontWeight:700,color:C.navy,margin:'0 0 4px',fontFamily:'Georgia,serif'}}>{domain} Quiz</h2>
-        <p style={{fontSize:15,color:C.muted,margin:0}}>
-          Score: <strong style={{color:p>=70?C.green:C.red}}>{p}%</strong> ({correct}/{qs.length})
-        </p>
-      </div>
+    <Page narrow>
+      <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
+        <Cap mb={12}>{domain} · Quick Quiz</Cap>
+        <div style={{ fontFamily: T.serif, fontSize: 64, fontWeight: 500, color: p >= 70 ? T.green : T.red, lineHeight: 1, marginBottom: 12, fontFeatureSettings: "'tnum' 1" }}>{p}%</div>
+        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2 }}>{correct} of {qs.length} correct</p>
+      </header>
       {missed.length > 0 && (
-        <button onClick={() => setReviewing(true)}
-          style={{width:'100%',padding:'14px',background:C.surface,color:C.navy,border:`2px solid ${C.navy}`,borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:'Georgia,serif',marginBottom:10}}>
-          🔍 Review Missed Questions ({missed.length})
-        </button>
+        <Btn onClick={() => setReviewing(true)} variant="ghost" style={{ width: '100%', padding: '14px', marginBottom: 12 }}>Review the {missed.length} Missed</Btn>
       )}
-      <button onClick={onRetry}
-        style={{width:'100%',padding:'14px',background:C.navy,color:C.white,border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:'Georgia,serif',marginBottom:10}}>
-        Retry this quiz
-      </button>
-      <button onClick={onPick}
-        style={{width:'100%',padding:'14px',background:C.surface,color:C.text,border:`1px solid ${C.border}`,borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:'Georgia,serif'}}>
-        ← Pick another domain
-      </button>
-    </div>
+      <Btn onClick={onRetry} variant="primary" style={{ width: '100%', padding: '14px', marginBottom: 12 }}>Retry this quiz</Btn>
+      <Btn onClick={onPick} variant="ghost" style={{ width: '100%', padding: '14px' }}>← Choose another domain</Btn>
+    </Page>
   );
 };
+
+// ─── CONSTRUCTED RESPONSE ──────────────────────────────────
 const ConstructedResponse = ({ st, up }) => {
-  const C = useC();
   const prompt = CR_PROMPTS.find(p => p.id === st.crPromptId) || CR_PROMPTS[0];
   const draftKey = `cst-cr-draft-${prompt.id}`;
   const [draft, setDraft] = useState('');
-  useEffect(() => {
-    try { setDraft(localStorage.getItem(draftKey) || ''); } catch { setDraft(''); }
-  }, [draftKey]);
-  const saveDraft = (val) => {
-    setDraft(val);
-    try { localStorage.setItem(draftKey, val); } catch {}
-  };
+  useEffect(() => { try { setDraft(localStorage.getItem(draftKey) || ''); } catch { setDraft(''); } }, [draftKey]);
+  const saveDraft = (val) => { setDraft(val); try { localStorage.setItem(draftKey, val); } catch {} };
   const wordCount = draft.trim() ? draft.trim().split(/\s+/).length : 0;
   const setSelf = (idx, level) => up({ crSelfScore: { ...st.crSelfScore, [idx]: level } });
-  const scoreSummary = (() => {
-    const vals = Object.values(st.crSelfScore || {});
-    if (!vals.length) return null;
-    return vals.reduce((acc, v) => { acc[v] = (acc[v]||0) + 1; return acc; }, {});
-  })();
-  const tabBtn = (id, label) => {
+  const tally = (() => { const v = Object.values(st.crSelfScore || {}); if (!v.length) return null; return v.reduce((a, x) => { a[x] = (a[x] || 0) + 1; return a; }, {}); })();
+  const tab = (id, label) => {
     const active = st.crView === id;
     return (
-      <button onClick={() => up({ crView: id })} style={{flex:1,padding:'10px',borderRadius:8,border:`1px solid ${active?C.navy:C.border}`,background:active?C.navyLight:C.surface,color:active?C.navy:C.text,fontSize:13,fontWeight:700,cursor:'pointer'}}>{label}</button>
+      <button onClick={() => up({ crView: id })}
+        style={{ ...baseStyles.cap, fontSize: 11, flex: 1, padding: '12px', border: `1px solid ${active ? T.ink : T.hairline}`, background: active ? T.paper2 : T.paper3, color: active ? T.ink : T.muted, cursor: 'pointer', borderBottom: active ? `3px solid ${T.orange2}` : `1px solid ${T.hairline}` }}>{label}</button>
     );
   };
   return (
-    <div style={{maxWidth:760,margin:'0 auto',padding:'32px 20px',fontFamily:'system-ui'}}>
-      <div style={{textAlign:'center',marginBottom:18}}>
-        <div style={{fontSize:40,marginBottom:6}}>✍️</div>
-        <h2 style={{fontSize:22,fontWeight:700,color:C.navy,margin:'0 0 4px',fontFamily:'Georgia,serif'}}>Constructed-Response Practice</h2>
-        <p style={{fontSize:14,color:C.muted,margin:0}}>Case-study analysis · NYSTCE CST 060 written assignment</p>
-      </div>
-      <div style={{display:'flex',gap:8,marginBottom:14,flexWrap:'wrap'}}>
-        {CR_PROMPTS.map(p => {
+    <Page narrow>
+      <header style={{ textAlign: 'center', marginBottom: 28, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
+        <Cap mb={12}>The Written Assignment</Cap>
+        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em' }}>Constructed Response</h2>
+        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2, marginTop: 12 }}>Case-study analysis · NYSTCE CST 060 written assignment</p>
+      </header>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+        {CR_PROMPTS.map((p, i) => {
           const active = p.id === st.crPromptId;
           return (
-            <button key={p.id} onClick={() => up({ crPromptId: p.id, crView:'prompt', crSelfScore:{} })} style={{flex:1,minWidth:200,padding:'10px',borderRadius:10,border:`2px solid ${active?C.navy:C.border}`,background:active?C.navyLight:C.surface,color:active?C.navy:C.text,fontSize:12,fontWeight:700,cursor:'pointer',textAlign:'left'}}>{p.title}</button>
+            <button key={p.id} onClick={() => up({ crPromptId: p.id, crView: 'prompt', crSelfScore: {} })}
+              style={{ flex: 1, minWidth: 240, padding: '14px 18px', border: `1px solid ${active ? T.ink : T.hairline}`, background: active ? T.paper2 : T.paper3, cursor: 'pointer', textAlign: 'left' }}>
+              <Cap color={T.orange2} mb={4}>Case Study {String(i + 1).padStart(2, '0')}</Cap>
+              <div style={{ fontFamily: T.serif, fontSize: 15, color: T.ink, fontWeight: 500, lineHeight: 1.3 }}>{p.title}</div>
+            </button>
           );
         })}
       </div>
-      <div style={{display:'flex',gap:6,marginBottom:18}}>
-        {tabBtn('prompt','Prompt + Draft')}
-        {tabBtn('rubric','Rubric')}
-        {tabBtn('exemplar','Exemplar')}
-      </div>
+      <div style={{ display: 'flex', gap: 0, marginBottom: 24 }}>{tab('prompt', 'Prompt + Draft')}{tab('rubric', 'Rubric')}{tab('exemplar', 'Exemplar')}</div>
+
       {st.crView === 'prompt' && (
         <>
-          <Card style={{marginBottom:14,borderLeft:`4px solid ${C.navy}`}}>
-            <div style={{fontSize:11,fontWeight:700,color:C.muted,textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Scenario</div>
-            <p style={{fontSize:14,lineHeight:1.7,color:C.text,margin:0,whiteSpace:'pre-wrap'}}>{prompt.scenario}</p>
-          </Card>
-          <Card style={{marginBottom:14,borderLeft:`4px solid ${C.amber}`,background:C.amberBg}}>
-            <div style={{fontSize:11,fontWeight:700,color:C.amber,textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Your Task</div>
-            <p style={{fontSize:14,lineHeight:1.7,color:C.text,margin:0,whiteSpace:'pre-wrap'}}>{prompt.task}</p>
-          </Card>
-          <Card>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-              <h3 style={{fontSize:14,fontWeight:700,color:C.navy,margin:0}}>Your Draft</h3>
-              <span style={{fontSize:12,color:C.muted}}>{wordCount} words · saved locally</span>
+          <div style={{ marginBottom: 20, padding: '24px 28px', background: T.paper3, borderLeft: `3px solid ${T.ink}`, border: `1px solid ${T.hairline}` }}>
+            <Cap color={T.orange2} mb={10}>— Scenario</Cap>
+            <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.65, color: T.ink, whiteSpace: 'pre-wrap' }}>{prompt.scenario}</p>
+          </div>
+          <div style={{ marginBottom: 24, padding: '24px 28px', background: T.paper2, borderLeft: `3px solid ${T.orange2}`, border: `1px solid ${T.hairline}` }}>
+            <Cap color={T.orange2} mb={10}>— Your Task</Cap>
+            <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.65, color: T.ink, whiteSpace: 'pre-wrap' }}>{prompt.task}</p>
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+              <Cap color={T.orange2}>— Your Draft</Cap>
+              <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 13, color: T.muted }}>{wordCount} words · saved locally</span>
             </div>
-            <textarea value={draft} onChange={(e) => saveDraft(e.target.value)} placeholder="Write your response here. Address each numbered part of the task. Your draft is saved automatically in this browser." style={{width:'100%',minHeight:280,padding:12,borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:C.text,fontSize:14,lineHeight:1.6,fontFamily:'Georgia, serif',resize:'vertical',outline:'none'}}/>
-            <div style={{display:'flex',gap:8,marginTop:10,flexWrap:'wrap'}}>
-              <button onClick={() => up({ crView:'rubric' })} style={{flex:1,minWidth:140,padding:'10px',borderRadius:10,border:'none',background:C.amber,color:C.white,fontSize:13,fontWeight:700,cursor:'pointer'}}>Score with Rubric →</button>
-              <button onClick={() => up({ crView:'exemplar' })} style={{flex:1,minWidth:140,padding:'10px',borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:C.navy,fontSize:13,fontWeight:700,cursor:'pointer'}}>Compare to Exemplar →</button>
-              <button onClick={() => saveDraft('')} style={{padding:'10px 14px',borderRadius:10,border:`1px solid ${C.border}`,background:C.surface,color:C.muted,fontSize:13,fontWeight:700,cursor:'pointer'}}>Clear</button>
+            <textarea value={draft} onChange={(e) => saveDraft(e.target.value)} placeholder="Compose your response here. Address each numbered part of the task. Your draft is saved automatically."
+              style={{ width: '100%', minHeight: 320, padding: '20px 24px', border: `1px solid ${T.ink}`, background: T.paper3, color: T.ink, fontSize: 17, lineHeight: 1.65, fontFamily: T.serif, resize: 'vertical', outline: 'none' }} />
+            <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+              <Btn onClick={() => up({ crView: 'rubric' })} variant="accent" style={{ flex: 1, minWidth: 160, padding: '14px' }}>Score with Rubric →</Btn>
+              <Btn onClick={() => up({ crView: 'exemplar' })} variant="ghost" style={{ flex: 1, minWidth: 160, padding: '14px' }}>Compare to Exemplar →</Btn>
+              <Btn onClick={() => saveDraft('')} variant="ghost" style={{ padding: '14px 20px' }}>Clear</Btn>
             </div>
-          </Card>
+          </div>
         </>
       )}
+
       {st.crView === 'rubric' && (
         <>
-          <Card style={{marginBottom:14}}>
-            <h3 style={{fontSize:14,fontWeight:700,color:C.navy,margin:'0 0 8px'}}>How to Use This Rubric</h3>
-            <p style={{fontSize:13,color:C.text,margin:0,lineHeight:1.6}}>For each criterion, read the level descriptors and select the level that BEST matches your draft. Be honest — the goal is to identify what to revise.</p>
-          </Card>
+          <div style={{ marginBottom: 20, padding: '20px 24px', background: T.paper3, border: `1px solid ${T.hairline}` }}>
+            <Cap color={T.orange2} mb={8}>— How to Use This Rubric</Cap>
+            <p style={{ fontFamily: T.serif, fontSize: 15, color: T.ink, lineHeight: 1.6, fontStyle: 'italic' }}>For each criterion, choose the level that best describes your draft. Be honest — the goal is to identify what to revise.</p>
+          </div>
           {prompt.rubric.map((r, i) => {
             const sel = st.crSelfScore?.[i];
-            const Btn = (level, label, color, bg, border) => (
-              <button onClick={() => setSelf(i, level)} style={{flex:1,padding:'10px',borderRadius:8,border:`2px solid ${sel===level?border:C.border}`,background:sel===level?bg:C.surface,color:sel===level?color:C.text,fontSize:12,fontWeight:700,cursor:'pointer'}}>{label}</button>
+            const Btn3 = (level, label, c, bg) => (
+              <button onClick={() => setSelf(i, level)}
+                style={{ ...baseStyles.cap, fontSize: 10, flex: 1, padding: '12px', border: `1px solid ${sel === level ? c : T.hairline}`, background: sel === level ? bg : T.paper3, color: sel === level ? c : T.muted, cursor: 'pointer' }}>{label}</button>
             );
             return (
-              <Card key={i} style={{marginBottom:12}}>
-                <div style={{fontSize:13,fontWeight:700,color:C.navy,marginBottom:10}}>{i+1}. {r.criterion}</div>
-                <div style={{fontSize:13,color:C.text,lineHeight:1.6,marginBottom:6}}><strong style={{color:C.green}}>3 (Strong):</strong> {r.high}</div>
-                <div style={{fontSize:13,color:C.text,lineHeight:1.6,marginBottom:6}}><strong style={{color:C.amber}}>2 (Developing):</strong> {r.mid}</div>
-                <div style={{fontSize:13,color:C.text,lineHeight:1.6,marginBottom:10}}><strong style={{color:C.red}}>1 (Limited):</strong> {r.low}</div>
-                <div style={{display:'flex',gap:6}}>
-                  {Btn('high','3 — Strong',C.green,C.greenBg,C.green)}
-                  {Btn('mid','2 — Developing',C.amber,C.amberBg,C.amber)}
-                  {Btn('low','1 — Limited',C.red,C.redBg,C.red)}
+              <div key={i} style={{ marginBottom: 16, padding: '20px 24px', border: `1px solid ${T.hairline}`, background: T.paper3 }}>
+                <Cap color={T.orange2} mb={6}>Criterion {String(i + 1).padStart(2, '0')}</Cap>
+                <h3 style={{ fontFamily: T.serif, fontWeight: 600, fontSize: 19, color: T.ink, marginBottom: 14, letterSpacing: '-.005em' }}>{r.criterion}</h3>
+                <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 6 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.green, marginRight: 8 }}>Strong</span>{r.high}</div>
+                <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 6 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.orange2, marginRight: 8 }}>Developing</span>{r.mid}</div>
+                <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 14 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.red, marginRight: 8 }}>Limited</span>{r.low}</div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {Btn3('high', '3 · Strong', T.green, T.greenBg)}
+                  {Btn3('mid', '2 · Developing', T.orange2, T.paper2)}
+                  {Btn3('low', '1 · Limited', T.red, T.redBg)}
                 </div>
-              </Card>
+              </div>
             );
           })}
-          {scoreSummary && (
-            <Card style={{background:C.navyLight,border:`1px solid ${C.navy}`}}>
-              <h3 style={{fontSize:14,fontWeight:700,color:C.navy,margin:'0 0 8px'}}>📋 Self-Assessment Summary</h3>
-              <p style={{fontSize:13,color:C.text,margin:'0 0 6px'}}>Strong (3): <strong>{scoreSummary.high || 0}</strong> · Developing (2): <strong>{scoreSummary.mid || 0}</strong> · Limited (1): <strong>{scoreSummary.low || 0}</strong></p>
-              <p style={{fontSize:12,color:C.muted,margin:0,lineHeight:1.5}}>Tip: Revise any criterion you scored Developing or Limited, then compare to the exemplar.</p>
-            </Card>
+          {tally && (
+            <div style={{ padding: '20px 24px', background: T.paper2, border: `1px solid ${T.ink}` }}>
+              <Cap color={T.orange2} mb={8}>— Self-Assessment</Cap>
+              <p style={{ fontFamily: T.serif, fontSize: 16, color: T.ink, marginBottom: 6 }}>
+                Strong (3): <strong>{tally.high || 0}</strong> · Developing (2): <strong>{tally.mid || 0}</strong> · Limited (1): <strong>{tally.low || 0}</strong>
+              </p>
+              <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 14, color: T.muted, lineHeight: 1.5 }}>Revise any criterion you scored Developing or Limited, then compare to the exemplar response.</p>
+            </div>
           )}
         </>
       )}
+
       {st.crView === 'exemplar' && (
         <>
-          <Card style={{marginBottom:14,background:C.greenBg,border:`1px solid ${C.greenBorder}`}}>
-            <h3 style={{fontSize:14,fontWeight:700,color:C.green,margin:'0 0 6px'}}>📘 Exemplar Response</h3>
-            <p style={{fontSize:12,color:C.text,margin:0,lineHeight:1.5}}>This is ONE strong response — not the only correct answer. Compare structure, evidence use, and how each task element is addressed.</p>
-          </Card>
-          <Card>
-            <p style={{fontSize:14,lineHeight:1.7,color:C.text,margin:0,whiteSpace:'pre-wrap',fontFamily:'Georgia, serif'}}>{prompt.exemplar}</p>
-          </Card>
-          <button onClick={() => up({ crView:'prompt' })} style={{width:'100%',marginTop:14,padding:'12px',borderRadius:10,border:'none',background:C.navy,color:C.white,fontSize:14,fontWeight:700,cursor:'pointer'}}>← Back to Draft</button>
+          <div style={{ marginBottom: 20, padding: '20px 24px', background: T.greenBg, border: `1px solid ${T.green}` }}>
+            <Cap color={T.green} mb={6}>— Exemplar Response</Cap>
+            <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 14, color: T.ink, lineHeight: 1.55 }}>This is one strong response — not the only correct answer. Compare structure, evidence use, and how each task element is addressed.</p>
+          </div>
+          <div style={{ padding: '32px 36px', background: T.paper3, border: `1px solid ${T.ink}` }}>
+            <p style={{ fontFamily: T.serif, fontSize: 17, lineHeight: 1.7, color: T.ink, whiteSpace: 'pre-wrap' }}>{prompt.exemplar}</p>
+          </div>
+          <Btn onClick={() => up({ crView: 'prompt' })} variant="primary" style={{ width: '100%', marginTop: 20, padding: '14px' }}>← Back to Draft</Btn>
         </>
       )}
-    </div>
+    </Page>
   );
 };
 
-const NAV_ITEMS=[
-  {id:'welcome',    label:'Home',      emoji:'🏠', always:true},
-  {id:'flashcards', label:'Cards',     emoji:'🃏', always:true},
-  {id:'quiz',       label:'Quiz',      emoji:'⚡',       always:true},
-  {id:'pretest',    label:'Pretest',   emoji:'📝', always:true},
-  {id:'cresponse',  label:'CR',        emoji:'✍️', always:true},
-  {id:'results',    label:'Results',   emoji:'📊', needs:'pretestScores'},
-  {id:'modules',    label:'Study',     emoji:'📚', needs:'pretestScores'},
-  {id:'posttest',   label:'Post-Test', emoji:'🏁', needs:'pretestScores'},
-  {id:'comparison', label:'Report',    emoji:'📈', needs:'postScores'},
-];
-
-const NavBar=({st,onNav,onReset,onConfirmReset,onCancelReset})=>{
-  const C = useC();
-  const { dark, toggle } = useTheme();
-  const active = st.phase==='module' ? 'modules'
-    : st.phase==='quizPicker' || st.phase==='quizRun' || st.phase==='quizDone' ? 'quiz'
-    : st.phase;
-  return(
-    <div style={{background:C.navBg,position:'sticky',top:0,zIndex:200,boxShadow:'0 2px 8px rgba(0,0,0,0.25)'}}>
-      <div style={{maxWidth:760,margin:'0 auto',padding:'0 12px',display:'flex',alignItems:'center',justifyContent:'space-between',height:48}}>
-        <div style={{display:'flex',gap:2,overflowX:'auto',scrollbarWidth:'none'}}>
-          {NAV_ITEMS.map(item=>{
-            const avail=item.always||!!st[item.needs];
-            const isActive=active===item.id;
-            return(
-              <button key={item.id} onClick={()=>avail&&onNav(item.id)} disabled={!avail}
-                style={{padding:'5px 9px',borderRadius:7,border:'none',whiteSpace:'nowrap',
-                  background:isActive?C.surface:'transparent',
-                  color:isActive?C.navActiveText:avail?C.navInactive:C.navDisabled,
-                  cursor:avail?'pointer':'default',
-                  fontSize:11,fontWeight:700,fontFamily:'system-ui',transition:'all 0.15s',outline:'none'}}>
-                {item.emoji} {item.label}
-              </button>
-            );
-          })}
-        </div>
-        <div style={{flexShrink:0,marginLeft:8,display:'flex',gap:6,alignItems:'center'}}>
-          <button onClick={toggle} aria-label="Toggle theme"
-            style={{padding:'4px 8px',borderRadius:7,border:`1px solid ${C.navBorder}`,background:'transparent',color:C.navInactive,cursor:'pointer',fontSize:13,fontWeight:700,fontFamily:'system-ui'}}>
-            {dark ? '\u2600\ufe0f' : '\ud83c\udf19'}
-          </button>
-          {!st.confirmReset
-            ?<button onClick={onReset} style={{padding:'4px 10px',borderRadius:7,border:`1px solid ${C.navBorder}`,background:'transparent',color:C.resetText,cursor:'pointer',fontSize:11,fontWeight:700,fontFamily:'system-ui',whiteSpace:'nowrap'}}>Reset</button>
-            :<div style={{display:'flex',gap:4,alignItems:'center'}}>
-               <span style={{fontSize:10,color:C.resetLabel,fontFamily:'system-ui',whiteSpace:'nowrap'}}>Start over?</span>
-               <button onClick={onConfirmReset} style={{padding:'3px 8px',borderRadius:6,border:'none',background:C.resetYesBg,color:'#ffffff',cursor:'pointer',fontSize:10,fontWeight:700,fontFamily:'system-ui'}}>Yes</button>
-               <button onClick={onCancelReset} style={{padding:'3px 8px',borderRadius:6,border:`1px solid ${C.navBorder}`,background:'transparent',color:C.resetNoText,cursor:'pointer',fontSize:10,fontWeight:700,fontFamily:'system-ui'}}>No</button>
-             </div>}
-        </div>
-      </div>
-    </div>
-  );
-};
-
+// ─── APP ROOT ──────────────────────────────────────────────
 export default function App() {
-  const [dark, setDark] = useState(() => {
-    try { return localStorage.getItem('cst-theme') === 'dark'; }
-    catch { return false; }
-  });
-  useEffect(() => {
-    try { localStorage.setItem('cst-theme', dark ? 'dark' : 'light'); } catch {}
-  }, [dark]);
-  const C = dark ? DARK : LIGHT;
-  const ctx = { C, dark, toggle: () => setDark(d => !d) };
-  return (
-    <ThemeContext.Provider value={ctx}>
-      <AppContent/>
-    </ThemeContext.Provider>
-  );
-}
-
-function AppContent() {
-  const C = useC();
   const QUIZ_POOL = useMemo(() => buildQuizPool(), []);
-  const [st, setSt] = useState({ ...INITIAL_STATE, posttestStarted:false, confirmReset:false, pretestAnswers:{}, posttestAnswers:{} });
+  const [st, setSt] = useState({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} });
   const up = (patch) => setSt(p => ({ ...p, ...patch }));
-  const weak = st.pretestScores ? Object.entries(st.pretestScores.domains).filter(([,v]) => pct(v.correct,v.total) < 70).map(([d]) => d) : [];
-
+  const weak = st.pretestScores ? Object.entries(st.pretestScores.domains).filter(([, v]) => pct(v.correct, v.total) < 70).map(([d]) => d) : [];
   const handleNav = (id) => {
     const m = {
-      welcome:    () => up({ phase:'welcome',    confirmReset:false }),
-      flashcards: () => up({ phase:'flashcards', confirmReset:false }),
-      quiz:       () => up({ phase:'quizPicker', confirmReset:false, quizDomain:null, quizQs:null, quizIdx:0, quizAnswers:{} }),
-      pretest:    () => up({ phase:'pretest',    confirmReset:false }),
-      cresponse:  () => up({ phase:'cresponse',  confirmReset:false }),
-      results:    () => st.pretestScores && up({ phase:'results',    confirmReset:false }),
-      modules:    () => st.pretestScores && up({ phase:'modules',    confirmReset:false }),
-      posttest:   () => st.pretestScores && up({ phase:'posttest',   confirmReset:false }),
-      comparison: () => st.postScores    && up({ phase:'comparison', confirmReset:false }),
+      welcome:    () => up({ phase: 'welcome',    confirmReset: false }),
+      flashcards: () => up({ phase: 'flashcards', confirmReset: false }),
+      quiz:       () => up({ phase: 'quizPicker', confirmReset: false, quizDomain: null, quizQs: null, quizIdx: 0, quizAnswers: {} }),
+      pretest:    () => up({ phase: 'pretest',    confirmReset: false }),
+      cresponse:  () => up({ phase: 'cresponse',  confirmReset: false }),
+      results:    () => st.pretestScores && up({ phase: 'results',    confirmReset: false }),
+      modules:    () => st.pretestScores && up({ phase: 'modules',    confirmReset: false }),
+      posttest:   () => st.pretestScores && up({ phase: 'posttest',   confirmReset: false }),
+      comparison: () => st.postScores    && up({ phase: 'comparison', confirmReset: false }),
     };
     m[id]?.();
   };
+  const nav = <NavBar st={st} onNav={handleNav}
+    onReset={() => up({ confirmReset: true })}
+    onConfirmReset={() => setSt({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} })}
+    onCancelReset={() => up({ confirmReset: false })} />;
+  const Wrap = ({ children }) => <div style={{ background: T.paper, minHeight: '100vh', color: T.ink }}>{nav}{children}</div>;
 
-  const nav = (
-    <NavBar st={st} onNav={handleNav}
-      onReset={() => up({ confirmReset:true })}
-      onConfirmReset={() => setSt({ ...INITIAL_STATE, posttestStarted:false, confirmReset:false, pretestAnswers:{}, posttestAnswers:{} })}
-      onCancelReset={() => up({ confirmReset:false })}/>
-  );
-
-  const Page = ({ children }) => (
-    <div style={{ background:C.bg, minHeight:'100vh', color:C.text }}>{nav}{children}</div>
-  );
-
-  if (st.phase === 'welcome') return (
-    <Page><Welcome onStart={() => up({ phase:'pretest', qIndex:0, answers:{} })}/></Page>
-  );
-
-  if (st.phase === 'flashcards') return (
-    <Page><Flashcards st={st} up={up}/></Page>
-  );
-
-  if (st.phase === 'cresponse') return (
-    <Page><ConstructedResponse st={st} up={up}/></Page>
-  );
-
-  if (st.phase === 'quizPicker') return (
-    <Page>
-      <QuizPicker pool={QUIZ_POOL} onStart={(domain, len, qs) => up({
-        phase:'quizRun', quizDomain:domain, quizLen:len, quizQs:qs, quizIdx:0, quizAnswers:{},
-      })}/>
+  if (st.phase === 'welcome')    return <Wrap><Welcome onStart={() => up({ phase: 'pretest', qIndex: 0, answers: {} })} /></Wrap>;
+  if (st.phase === 'flashcards') return <Wrap><Flashcards st={st} up={up} /></Wrap>;
+  if (st.phase === 'cresponse')  return <Wrap><ConstructedResponse st={st} up={up} /></Wrap>;
+  if (st.phase === 'quizPicker') return <Wrap><QuizPicker pool={QUIZ_POOL} onStart={(domain, len, qs) => up({ phase: 'quizRun', quizDomain: domain, quizLen: len, quizQs: qs, quizIdx: 0, quizAnswers: {} })} /></Wrap>;
+  if (st.phase === 'quizRun' && st.quizQs) return <Wrap><QuestionScreen questions={st.quizQs} answers={st.quizAnswers} qIndex={st.quizIdx} onAnswer={(i, a) => up({ quizAnswers: { ...st.quizAnswers, [i]: a } })} onNav={(d) => up({ quizIdx: Math.max(0, Math.min(st.quizQs.length - 1, st.quizIdx + d)) })} onSubmit={() => up({ phase: 'quizDone' })} phase={`${st.quizDomain} Quiz`} /></Wrap>;
+  if (st.phase === 'quizDone' && st.quizQs) return <Wrap><QuizResults domain={st.quizDomain} qs={st.quizQs} answers={st.quizAnswers} onRetry={() => up({ phase: 'quizRun', quizQs: shuffle(st.quizQs), quizIdx: 0, quizAnswers: {} })} onPick={() => up({ phase: 'quizPicker', quizDomain: null, quizQs: null, quizIdx: 0, quizAnswers: {} })} /></Wrap>;
+  if (st.phase === 'pretest')    return <Wrap><QuestionScreen questions={PRETEST} answers={st.answers} qIndex={st.qIndex} onAnswer={(i, a) => up({ answers: { ...st.answers, [i]: a } })} onNav={(d) => up({ qIndex: Math.max(0, Math.min(PRETEST.length - 1, st.qIndex + d)) })} onSubmit={() => { const s = calcScores(PRETEST, st.answers); up({ phase: 'results', pretestScores: s, pretestAnswers: { ...st.answers } }); }} phase="Pretest" /></Wrap>;
+  if (st.phase === 'results')    return <Wrap><Results scores={st.pretestScores} weakDomains={weak} sourceQuestions={PRETEST} sourceAnswers={st.pretestAnswers} onContinue={() => up({ phase: 'modules' })} /></Wrap>;
+  if (st.phase === 'modules')    return <Wrap><ModuleHub weakDomains={weak} completedModules={st.completedModules} onSelect={(d) => up({ phase: 'module', activeModule: d, modPhase: 'content', modPQIndex: 0, modPAnswers: {} })} onSkip={() => up({ phase: 'posttest', posttestStarted: false })} /></Wrap>;
+  if (st.phase === 'module')     return <Wrap><LearningModule domain={st.activeModule} phase={st.modPhase} pqIndex={st.modPQIndex} pAnswers={st.modPAnswers} onBack={() => up({ phase: 'modules' })} onStartPractice={() => up({ modPhase: 'practice' })} onPAnswer={(i, a) => { if (i === 'next') { up({ modPQIndex: st.modPQIndex + 1 }); return; } up({ modPAnswers: { ...st.modPAnswers, [i]: a } }); }} onFinish={() => up({ phase: 'modules', completedModules: [...new Set([...st.completedModules, st.activeModule])] })} /></Wrap>;
+  if (st.phase === 'posttest')   return <Wrap>{!st.posttestStarted ? (
+    <Page narrow>
+      <header style={{ textAlign: 'center', padding: '60px 0' }}>
+        <Cap mb={12}>The Final Examination</Cap>
+        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 56, color: T.ink, letterSpacing: '-.01em', marginBottom: 18 }}>The Post-Test</h2>
+        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, color: T.ink2, lineHeight: 1.55, maxWidth: 540, margin: '0 auto 36px' }}>{POSTTEST.length} questions across the four subareas, all fresh. Demonstrate the growth of your study.</p>
+        <Btn onClick={() => up({ posttestStarted: true, answers: {}, qIndex: 0 })} variant="primary" style={{ padding: '18px 48px' }}>Begin the Post-Test</Btn>
+      </header>
     </Page>
-  );
-
-  if (st.phase === 'quizRun' && st.quizQs) return (
-    <Page>
-      <QuestionScreen questions={st.quizQs} answers={st.quizAnswers} qIndex={st.quizIdx}
-        onAnswer={(i,a) => up({ quizAnswers: { ...st.quizAnswers, [i]:a } })}
-        onNav={(d) => up({ quizIdx: Math.max(0, Math.min(st.quizQs.length - 1, st.quizIdx + d)) })}
-        onSubmit={() => up({ phase:'quizDone' })}
-        phase={`${st.quizDomain} Quiz`}/>
-    </Page>
-  );
-
-  if (st.phase === 'quizDone' && st.quizQs) return (
-    <Page>
-      <QuizResults domain={st.quizDomain} qs={st.quizQs} answers={st.quizAnswers}
-        onRetry={() => up({ phase:'quizRun', quizQs: shuffle(st.quizQs), quizIdx:0, quizAnswers:{} })}
-        onPick={() => up({ phase:'quizPicker', quizDomain:null, quizQs:null, quizIdx:0, quizAnswers:{} })}/>
-    </Page>
-  );
-
-  if (st.phase === 'pretest') return (
-    <Page>
-      <QuestionScreen questions={PRETEST} answers={st.answers} qIndex={st.qIndex}
-        onAnswer={(i,a) => up({ answers: { ...st.answers, [i]:a } })}
-        onNav={(d) => up({ qIndex: Math.max(0, Math.min(PRETEST.length - 1, st.qIndex + d)) })}
-        onSubmit={() => {
-          const s = calcScores(PRETEST, st.answers);
-          up({ phase:'results', pretestScores:s, pretestAnswers:{ ...st.answers } });
-        }}
-        phase="Pretest"/>
-    </Page>
-  );
-
-  if (st.phase === 'results') return (
-    <Page>
-      <Results scores={st.pretestScores} weakDomains={weak}
-        sourceQuestions={PRETEST} sourceAnswers={st.pretestAnswers}
-        onContinue={() => up({ phase:'modules' })}/>
-    </Page>
-  );
-
-  if (st.phase === 'modules') return (
-    <Page>
-      <ModuleHub weakDomains={weak} completedModules={st.completedModules}
-        onSelect={(d) => up({ phase:'module', activeModule:d, modPhase:'content', modPQIndex:0, modPAnswers:{} })}
-        onSkip={() => up({ phase:'posttest', posttestStarted:false })}/>
-    </Page>
-  );
-
-  if (st.phase === 'module') return (
-    <Page>
-      <LearningModule domain={st.activeModule} phase={st.modPhase}
-        pqIndex={st.modPQIndex} pAnswers={st.modPAnswers}
-        onBack={() => up({ phase:'modules' })}
-        onStartPractice={() => up({ modPhase:'practice' })}
-        onPAnswer={(i,a) => { if (i === 'next') { up({ modPQIndex: st.modPQIndex + 1 }); return; } up({ modPAnswers: { ...st.modPAnswers, [i]:a } }); }}
-        onFinish={() => up({ phase:'modules', completedModules: [...new Set([...st.completedModules, st.activeModule])] })}/>
-    </Page>
-  );
-
-  if (st.phase === 'posttest') return (
-    <Page>
-      {!st.posttestStarted
-        ? <div style={{maxWidth:660,margin:'0 auto',padding:'48px 20px',textAlign:'center',fontFamily:'system-ui'}}>
-            <div style={{fontSize:48,marginBottom:12}}>🏁</div>
-            <h2 style={{fontSize:22,fontWeight:700,color:C.navy,fontFamily:'Georgia,serif',marginBottom:8}}>Time for the Post-Test</h2>
-            <p style={{fontSize:15,color:C.muted,marginBottom:28,lineHeight:1.6}}>32 questions · Same domains · Fresh questions<br/>Let's see how much you've grown.</p>
-            <button onClick={() => up({ posttestStarted:true, answers:{}, qIndex:0 })}
-              style={{padding:'14px 36px',background:C.navy,color:C.white,border:'none',borderRadius:12,fontSize:15,fontWeight:700,cursor:'pointer',fontFamily:'Georgia,serif'}}>
-              Start Post-Test →
-            </button>
-          </div>
-        : <QuestionScreen questions={POSTTEST} answers={st.answers} qIndex={st.qIndex}
-            onAnswer={(i,a) => up({ answers: { ...st.answers, [i]:a } })}
-            onNav={(d) => up({ qIndex: Math.max(0, Math.min(POSTTEST.length - 1, st.qIndex + d)) })}
-            onSubmit={() => {
-              const s = calcScores(POSTTEST, st.answers);
-              up({ phase:'comparison', postScores:s, posttestAnswers:{ ...st.answers } });
-            }}
-            phase="Post-Test"/>}
-    </Page>
-  );
-
-  if (st.phase === 'comparison') return (
-    <Page>
-      <Results scores={st.postScores} weakDomains={[]} pretestScores={st.pretestScores}
-        isPost={true}
-        sourceQuestions={POSTTEST} sourceAnswers={st.posttestAnswers}
-        onContinue={() => setSt({ ...INITIAL_STATE, posttestStarted:false, confirmReset:false, pretestAnswers:{}, posttestAnswers:{} })}/>
-    </Page>
-  );
-
+  ) : (
+    <QuestionScreen questions={POSTTEST} answers={st.answers} qIndex={st.qIndex} onAnswer={(i, a) => up({ answers: { ...st.answers, [i]: a } })} onNav={(d) => up({ qIndex: Math.max(0, Math.min(POSTTEST.length - 1, st.qIndex + d)) })} onSubmit={() => { const s = calcScores(POSTTEST, st.answers); up({ phase: 'comparison', postScores: s, posttestAnswers: { ...st.answers } }); }} phase="Post-Test" />
+  )}</Wrap>;
+  if (st.phase === 'comparison') return <Wrap><Results scores={st.postScores} weakDomains={[]} pretestScores={st.pretestScores} isPost={true} sourceQuestions={POSTTEST} sourceAnswers={st.posttestAnswers} onContinue={() => setSt({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} })} /></Wrap>;
   return null;
 }

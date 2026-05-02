@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>1C · Vignelli Editorial Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --paper:#ffffff;
+  --paper-2:#f4f4f4;
+  --ink:#000000;
+  --rule:#000000;
+  --red:#c8102e;
+  --red-2:#a30c25;
+  --muted:#6e6e6e;
+  --hairline:rgba(0,0,0,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--paper);color:var(--ink);font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:'kern' 1,'tnum' 1;text-rendering:optimizeLegibility}
+body{padding:0 0 96px}
+.bar-red{height:6px;background:var(--red)}
+.topbar{padding:14px 0;border-bottom:1px solid var(--ink)}
+.topbar-inner{max-width:1180px;margin:0 auto;padding:0 32px;display:grid;grid-template-columns:auto 1fr auto;gap:32px;align-items:baseline}
+.brand{font-family:'Inter',sans-serif;font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase}
+.brand .num{color:var(--red)}
+.nav{display:flex;gap:0;justify-content:center}
+.nav a{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink);text-decoration:none;padding:0 14px;border-right:1px solid var(--hairline);font-weight:500}
+.nav a:last-child{border-right:none}
+.nav a.active{color:var(--red);font-weight:700}
+.right-meta{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.right-meta b{color:var(--ink)}
+.grid{max-width:1180px;margin:0 auto;padding:0 32px}
+.divider{grid-column:1 / -1;height:1px;background:var(--ink);margin:0}
+.divider.thick{height:6px;background:var(--ink)}
+.divider.red{background:var(--red);height:2px}
+.cap{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;font-weight:600}
+.cap.red{color:var(--red)}
+.section-meta{grid-column:1 / span 3;padding:24px 24px 24px 0;border-right:1px solid var(--ink)}
+.section-meta .label{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.32em;text-transform:uppercase;font-weight:700;color:var(--red);margin-bottom:8px}
+.section-meta .num{font-family:'Inter',sans-serif;font-size:48px;font-weight:300;letter-spacing:-.03em;line-height:.95;font-feature-settings:'tnum' 1}
+.section-meta p{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5;font-weight:400}
+.hero{display:grid;grid-template-columns:repeat(12,1fr);gap:0;padding:48px 0 24px}
+.hero .meta-col{grid-column:1 / span 3;padding-right:24px;border-right:1px solid var(--ink);padding-bottom:24px}
+.hero .meta-col .label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+.hero .meta-col .item{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);font-weight:500;line-height:1.6;border-bottom:1px solid var(--hairline);padding:8px 0}
+.hero .meta-col .item:last-child{border-bottom:none}
+.hero .meta-col .item span{color:var(--muted);float:right}
+.hero .title-col{grid-column:4 / -1;padding-left:32px;padding-bottom:16px;display:flex;flex-direction:column;justify-content:flex-end}
+.title{font-family:'Playfair Display',serif;font-weight:900;font-size:104px;line-height:.92;color:var(--ink);letter-spacing:-.035em;margin:0}
+.title .ital{font-style:italic;font-weight:400;color:var(--red)}
+.subtitle-row{display:grid;grid-template-columns:repeat(12,1fr);gap:0;padding:0 0 32px;border-top:1px solid var(--ink)}
+.subtitle-row .left{grid-column:1 / span 3;padding:24px 24px 24px 0;border-right:1px solid var(--ink)}
+.subtitle-row .left .cap{color:var(--red)}
+.subtitle-row .right{grid-column:4 / -1;padding:24px 0 24px 32px}
+.subtitle-row .right p{font-family:'Playfair Display',serif;font-weight:400;font-size:24px;line-height:1.4;letter-spacing:-.005em;color:var(--ink);max-width:780px}
+.subtitle-row .right p em{font-style:italic;color:var(--red)}
+.process{display:grid;grid-template-columns:repeat(12,1fr);gap:0;padding:48px 0 0;border-top:6px solid var(--ink)}
+.process .head{grid-column:1 / span 3;padding-right:24px;border-right:1px solid var(--ink);padding-bottom:32px}
+.process .head .num{font-family:'Inter',sans-serif;font-weight:300;font-size:60px;letter-spacing:-.04em;line-height:.9}
+.process .head h2{font-family:'Playfair Display',serif;font-weight:700;font-size:28px;letter-spacing:-.01em;line-height:1.1;margin-top:14px}
+.process .head .label{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:12px}
+.process .body{grid-column:4 / -1;padding-left:32px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--ink)}
+.step{padding:24px 18px 24px 0;border-right:1px solid var(--hairline);border-bottom:1px solid var(--ink)}
+.step:last-child{border-right:none}
+.step .stepnum{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:.18em;font-weight:700;color:var(--red);margin-bottom:18px}
+.step h3{font-family:'Playfair Display',serif;font-weight:700;font-size:17px;letter-spacing:-.005em;line-height:1.2;margin-bottom:8px;color:var(--ink)}
+.step p{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);line-height:1.5}
+.toc{display:grid;grid-template-columns:repeat(12,1fr);gap:0;padding:48px 0 0;border-top:6px solid var(--ink);margin-top:48px}
+.toc .head{grid-column:1 / span 3;padding-right:24px;border-right:1px solid var(--ink);padding-bottom:32px}
+.toc .head .num{font-family:'Inter',sans-serif;font-weight:300;font-size:60px;letter-spacing:-.04em;line-height:.9}
+.toc .head h2{font-family:'Playfair Display',serif;font-weight:700;font-size:28px;letter-spacing:-.01em;line-height:1.1;margin-top:14px}
+.toc .head .label{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:12px}
+.toc .body{grid-column:4 / -1;padding-left:32px;border-top:1px solid var(--ink)}
+.toc-row{display:grid;grid-template-columns:60px 80px 1fr;gap:24px;align-items:baseline;padding:22px 0;border-bottom:1px solid var(--hairline)}
+.toc-row:last-child{border-bottom:1px solid var(--ink)}
+.toc-row .id{font-family:'Inter',sans-serif;font-weight:700;font-size:13px;letter-spacing:.22em;color:var(--red)}
+.toc-row .pg{font-family:'Inter',sans-serif;font-weight:400;font-size:13px;letter-spacing:.05em;color:var(--muted);font-feature-settings:'tnum' 1}
+.toc-row .name{font-family:'Playfair Display',serif;font-weight:500;font-size:22px;letter-spacing:-.005em;line-height:1.25;color:var(--ink)}
+.toc-row .desc{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.cta-band{display:grid;grid-template-columns:repeat(12,1fr);gap:0;padding:48px 0 0;border-top:6px solid var(--red);margin-top:64px;align-items:center}
+.cta-band .left{grid-column:1 / span 7;padding-right:32px}
+.cta-band .left h2{font-family:'Playfair Display',serif;font-weight:700;font-size:42px;letter-spacing:-.015em;line-height:1.1;color:var(--ink)}
+.cta-band .left h2 em{font-style:italic;color:var(--red);font-weight:400}
+.cta-band .left p{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);margin-top:12px;letter-spacing:.04em}
+.cta-band .right{grid-column:8 / -1;text-align:right}
+.cta{display:inline-block;background:var(--ink);color:var(--paper);padding:20px 36px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;border:none;cursor:pointer;transition:background .15s}
+.cta:hover{background:var(--red)}
+.cta .arr{display:inline-block;margin-left:14px}
+.footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--ink);text-align:center;font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="bar-red"></div>
+<nav class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">SWD <span class="num">/ CST 060</span></div>
+    <div class="nav">
+      <a href="#" class="active">Home</a>
+      <a href="#">Pretest</a>
+      <a href="#">Study</a>
+      <a href="#">Constructed&nbsp;Response</a>
+      <a href="#">Quiz</a>
+      <a href="#">Cards</a>
+    </div>
+    <div class="right-meta"><b>NY State</b> · Edition I</div>
+  </div>
+</nav>
+
+<section class="grid">
+  <div class="hero">
+    <div class="meta-col">
+      <div class="label">— Specifications</div>
+      <div class="item">Issue <span>060</span></div>
+      <div class="item">Volume <span>I</span></div>
+      <div class="item">Items <span>64</span></div>
+      <div class="item">Modules <span>16</span></div>
+      <div class="item">Phases <span>05</span></div>
+    </div>
+    <div class="title-col">
+      <h1 class="title">Students <span class="ital">with</span><br/>Disabilities</h1>
+    </div>
+  </div>
+  <div class="subtitle-row">
+    <div class="left">
+      <div class="cap red">— New York State<br/>Content Specialty Test</div>
+    </div>
+    <div class="right">
+      <p>A complete preparation course covering all four subareas of the New York State examination, with the constructed-response written assignment. Aligned to <em>NYSED Part 200</em>, <em>IDEA</em>, and <em>Endrew F. (2017)</em>.</p>
+    </div>
+  </div>
+
+  <div class="process">
+    <div class="head">
+      <div class="label">— Section 01</div>
+      <div class="num">01</div>
+      <h2>How This Works</h2>
+    </div>
+    <div class="body">
+      <div class="steps">
+        <div class="step"><div class="stepnum">PHASE 01</div><h3>Take the Pretest</h3><p>32 questions across all four subareas establish your baseline.</p></div>
+        <div class="step"><div class="stepnum">PHASE 02</div><h3>Review Results</h3><p>Domain-by-domain breakdown shows precisely where to focus.</p></div>
+        <div class="step"><div class="stepnum">PHASE 03</div><h3>Study Weak Areas</h3><p>Sixteen deep-dive modules with concept summaries and practice.</p></div>
+        <div class="step"><div class="stepnum">PHASE 04</div><h3>Constructed Response</h3><p>Two case studies with rubric, exemplar, autosaving draft.</p></div>
+        <div class="step"><div class="stepnum">PHASE 05</div><h3>Take the Post-Test</h3><p>32 fresh questions verify your growth and readiness.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="head">
+      <div class="label">— Section 02</div>
+      <div class="num">02</div>
+      <h2>The Four Subareas</h2>
+    </div>
+    <div class="body">
+      <div class="toc-row">
+        <div class="id">SA / I</div>
+        <div class="pg">p. 001</div>
+        <div>
+          <div class="name">Foundations of Special Education</div>
+          <div class="desc">IDEA · FAPE · LRE · Section 504 · NYSED Part 200 · the IEP process · family partnerships · ethics &amp; equity.</div>
+        </div>
+      </div>
+      <div class="toc-row">
+        <div class="id">SA / II</div>
+        <div class="pg">p. 023</div>
+        <div>
+          <div class="name">Knowledge of Students with Disabilities</div>
+          <div class="desc">Specific Learning Disabilities · Autism Spectrum Disorder · Emotional Disturbance &amp; ADHD · ID · DD · OHI · sensory.</div>
+        </div>
+      </div>
+      <div class="toc-row">
+        <div class="id">SA / III</div>
+        <div class="pg">p. 047</div>
+        <div>
+          <div class="name">Assessment &amp; Individualized Program Planning</div>
+          <div class="desc">Norm-referenced &amp; CBM · writing measurable goals · FBA &amp; BIP · progress monitoring · transition planning.</div>
+        </div>
+      </div>
+      <div class="toc-row">
+        <div class="id">SA / IV</div>
+        <div class="pg">p. 071</div>
+        <div>
+          <div class="name">Instruction &amp; Learning Environment</div>
+          <div class="desc">UDL · explicit instruction · accommodations vs. modifications · PBIS · co-teaching · AT · related services.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div class="left">
+      <h2>Begin with the diagnostic. <em>The course is sequential.</em></h2>
+      <p>30-minute pretest · No account required · Progress saves locally in this browser</p>
+    </div>
+    <div class="right">
+      <a href="#" class="cta">Begin the Pretest <span class="arr">→</span></a>
+    </div>
+  </div>
+
+  <div class="footer">SWD CST 060 · Edition I · MMXXVI</div>
+</section>
+</body>
+</html>
