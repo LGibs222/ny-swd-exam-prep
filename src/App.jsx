@@ -20,11 +20,36 @@ const baseStyles = {
   ital: { fontStyle: 'italic', fontWeight: 400 },
 };
 
+// ═══════════════════════════════════════════════════════════════
+// EXAM CONTENT · Edit this block to fork a new exam app.
+// Everything below the ENGINE divider is generic and can be copied
+// verbatim across exam apps. Only the constants in this block differ.
+// ═══════════════════════════════════════════════════════════════
+
 const SUBTESTS = {
   FOUND:    { label:'Foundations',              roman:'I' },
   STUDENTS: { label:'Knowledge of Students',    roman:'II' },
   ASSESS:   { label:'Assessment & IEP',         roman:'III' },
   INSTRUCT: { label:'Instruction',              roman:'IV' },
+};
+
+const WELCOME = {
+  imprint: 'New York State · Content Specialty Test',
+  triBand: ['A Course in Five Phases', 'No. 060 · Edition I'],
+  title: { pre: 'Students', italic: 'with', post: 'Disabilities' },
+  subtitle: 'A complete preparation course covering all four subareas of the New York State examination, with the constructed-response written assignment.',
+  alignment: ['NYSED Part 200', 'IDEA', 'Endrew F. (2017)'],
+  steps: [
+    ['Take the Pretest', 'Thirty-two questions across all four subareas establish your baseline.'],
+    ['Review Your Results', 'A domain-by-domain analysis shows precisely where to focus.'],
+    ['Study Your Weak Areas', 'Sixteen deep-dive modules with concept summaries and practice questions.'],
+    ['Practice the Constructed Response', 'Two case studies with rubric, exemplar, and an autosaving draft workspace.'],
+    ['Take the Post-Test', 'Measure your growth and confirm readiness with thirty-two fresh questions.'],
+  ],
+  subareasHeading: 'The Four Subareas',
+  subareaWord: 'Subarea',
+  posttestIntro: 'questions across the four subareas, all fresh. Demonstrate the growth of your study.',
+  colophon: 'Set in EB Garamond. Composed for the New York State teaching candidate, in the manner of a Penguin Classic. Aligned to NYSED Part 200 and the Individuals with Disabilities Education Act.',
 };
 
 const PRETEST = [
@@ -545,6 +570,12 @@ const CR_PROMPTS = [
   },
 ];
 
+// ═══════════════════════════════════════════════════════════════
+// ENGINE · Generic. Below this divider should be portable verbatim
+// across exam apps. References SUBTESTS / WELCOME / PRETEST / POSTTEST /
+// MODULES / CR_PROMPTS from the EXAM CONTENT block above.
+// ═══════════════════════════════════════════════════════════════
+
 const calcScores = (questions, answers) => {
   const domainData = {};
   questions.forEach((q, i) => {
@@ -612,7 +643,8 @@ const ProgressRow = ({ value, label, color = T.orange2 }) => (
       <span style={{ color: T.ink2 }}>{label}</span>
       <span style={{ color, fontWeight: 600, fontFeatureSettings: "'tnum' 1" }}>{value}%</span>
     </div>
-    <div style={{ background: T.paper2, border: `1px solid ${T.hairline}`, height: 6, position: 'relative' }}>
+    <div role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={100} aria-label={typeof label === 'string' ? label : undefined}
+      style={{ background: T.paper2, border: `1px solid ${T.hairline}`, height: 6, position: 'relative' }}>
       <div style={{ width: `${value}%`, height: '100%', background: color, transition: 'width 0.6s ease' }} />
     </div>
   </div>
@@ -680,25 +712,26 @@ const Welcome = ({ onStart }) => (
   <Page>
     <div style={{ margin: '0 0 32px', borderTop: `1px solid ${T.ink}`, borderBottom: `1px solid ${T.ink}`, padding: '18px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
-        <span style={baseStyles.capSm}>A Course in Five Phases</span>
+        <span style={baseStyles.capSm}>{WELCOME.triBand[0]}</span>
         <span style={{ width: 38, height: 38, border: `1.5px solid ${T.ink}`, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, fontWeight: 500, color: T.ink }}>𝒮</span>
-        <span style={baseStyles.capSm}>No. 060 · Edition I</span>
+        <span style={baseStyles.capSm}>{WELCOME.triBand[1]}</span>
       </div>
     </div>
     <header style={{ textAlign: 'center', padding: '0 0 40px', borderBottom: `3px solid ${T.ink}` }}>
-      <Cap mb={32}>New York State · Content Specialty Test</Cap>
+      <Cap mb={32}>{WELCOME.imprint}</Cap>
       <h1 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 84, lineHeight: 1.02, color: T.ink, letterSpacing: '-.01em', marginBottom: 22 }}>
-        Students <span style={{ ...baseStyles.ital, color: T.orange2 }}>with</span> Disabilities
+        {WELCOME.title.pre} <span style={{ ...baseStyles.ital, color: T.orange2 }}>{WELCOME.title.italic}</span> {WELCOME.title.post}
       </h1>
       <p style={{ fontFamily: T.serif, fontSize: 21, color: T.ink2, maxWidth: 680, margin: '0 auto 28px', lineHeight: 1.5, fontStyle: 'italic' }}>
-        A complete preparation course covering all four subareas of the New York State examination, with the constructed-response written assignment.
+        {WELCOME.subtitle}
       </p>
       <div style={{ ...baseStyles.cap, fontSize: 11, color: T.muted }}>
-        <span style={{ color: T.ink, fontWeight: 600 }}>NYSED Part 200</span>
-        <span style={{ margin: '0 12px', color: T.orange }}>·</span>
-        <span style={{ color: T.ink, fontWeight: 600 }}>IDEA</span>
-        <span style={{ margin: '0 12px', color: T.orange }}>·</span>
-        <span style={{ color: T.ink, fontWeight: 600 }}>Endrew F. (2017)</span>
+        {WELCOME.alignment.map((item, i) => (
+          <span key={item}>
+            {i > 0 && <span style={{ margin: '0 12px', color: T.orange }}>·</span>}
+            <span style={{ color: T.ink, fontWeight: 600 }}>{item}</span>
+          </span>
+        ))}
       </div>
     </header>
     <section style={{ display: 'grid', gridTemplateColumns: '1fr 1px 1fr', gap: 0, padding: '48px 0 0' }}>
@@ -707,15 +740,9 @@ const Welcome = ({ onStart }) => (
           <Cap color={T.orange2} mb={8}>— The Method</Cap>
           <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 36, color: T.ink, letterSpacing: '-.005em', lineHeight: 1 }}>How This Works</h2>
         </div>
-        {[
-          ['1.', 'Take the Pretest', 'Thirty-two questions across all four subareas establish your baseline.'],
-          ['2.', 'Review Your Results', 'A domain-by-domain analysis shows precisely where to focus.'],
-          ['3.', 'Study Your Weak Areas', 'Sixteen deep-dive modules with concept summaries and practice questions.'],
-          ['4.', 'Practice the Constructed Response', 'Two case studies with rubric, exemplar, and an autosaving draft workspace.'],
-          ['5.', 'Take the Post-Test', 'Measure your growth and confirm readiness with thirty-two fresh questions.'],
-        ].map(([n, title, desc], i, arr) => (
-          <div key={n} style={{ display: 'grid', gridTemplateColumns: '48px 1fr', gap: 18, padding: '18px 0', borderBottom: i < arr.length - 1 ? `1px solid ${T.hairline}` : 'none' }}>
-            <div style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 30, color: T.orange2, fontWeight: 500, lineHeight: 1.05 }}>{n}</div>
+        {WELCOME.steps.map(([title, desc], i, arr) => (
+          <div key={i} style={{ display: 'grid', gridTemplateColumns: '48px 1fr', gap: 18, padding: '18px 0', borderBottom: i < arr.length - 1 ? `1px solid ${T.hairline}` : 'none' }}>
+            <div style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 30, color: T.orange2, fontWeight: 500, lineHeight: 1.05 }}>{i + 1}.</div>
             <div>
               <h3 style={{ fontFamily: T.serif, fontWeight: 600, fontSize: 18, marginBottom: 4, lineHeight: 1.2 }}>{title}</h3>
               <p style={{ fontFamily: T.serif, fontSize: 15, color: T.ink2, lineHeight: 1.55 }}>{desc}</p>
@@ -726,12 +753,12 @@ const Welcome = ({ onStart }) => (
       <div style={{ background: T.ink, width: 1 }} />
       <div style={{ padding: '0 32px' }}>
         <div style={{ marginBottom: 28, paddingBottom: 14, borderBottom: `1px solid ${T.ink}` }}>
-          <Cap color={T.orange2} mb={8}>— The Four Subareas</Cap>
+          <Cap color={T.orange2} mb={8}>— {WELCOME.subareasHeading}</Cap>
           <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 36, color: T.ink, letterSpacing: '-.005em', lineHeight: 1 }}>Contents</h2>
         </div>
         {Object.entries(SUBTESTS).map(([k, v], i, arr) => (
           <div key={k} style={{ padding: '18px 0', borderBottom: i < arr.length - 1 ? `1px solid ${T.hairline}` : 'none' }}>
-            <Cap color={T.orange2} mb={5}>Subarea {v.roman}</Cap>
+            <Cap color={T.orange2} mb={5}>{WELCOME.subareaWord} {v.roman}</Cap>
             <h3 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 21, letterSpacing: '-.005em', lineHeight: 1.2, marginBottom: 5 }}>{v.label}</h3>
           </div>
         ))}
@@ -745,7 +772,7 @@ const Welcome = ({ onStart }) => (
     </div>
     <div style={{ marginTop: 56, paddingTop: 24, borderTop: `1px solid ${T.ink}`, textAlign: 'center', fontFamily: T.serif, fontStyle: 'italic', fontSize: 13, color: T.muted, lineHeight: 1.6, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto' }}>
       <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink, marginBottom: 6, fontStyle: 'normal' }}>Colophon</div>
-      Set in EB Garamond. Composed for the New York State teaching candidate, in the manner of a Penguin Classic. Aligned to NYSED Part 200 and the Individuals with Disabilities Education Act.
+      {WELCOME.colophon}
     </div>
   </Page>
 );
@@ -760,21 +787,21 @@ const QuestionScreen = ({ questions, answers, qIndex, onAnswer, onNav, onSubmit,
   return (
     <Page narrow>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18, paddingBottom: 12, borderBottom: `1px solid ${T.ink}` }}>
-        <div><Pill color={T.orange2}>Subarea {subtest.roman} · {subtest.label}</Pill></div>
+        <div><Pill color={T.orange2}>{WELCOME.subareaWord} {subtest.roman} · {subtest.label}</Pill></div>
         <div style={{ ...baseStyles.cap, fontSize: 11, color: T.muted }}>Question {qIndex + 1} of {total}</div>
       </div>
       <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink2, marginBottom: 14 }}>{q.d}</div>
       <div style={{ height: 3, background: T.paper2, marginBottom: 36, position: 'relative' }}>
         <div style={{ width: `${((qIndex + 1) / total) * 100}%`, height: '100%', background: T.orange2, transition: 'width .3s' }} />
       </div>
-      <p style={{ fontFamily: T.serif, fontSize: 24, lineHeight: 1.45, color: T.ink, marginBottom: 32, fontWeight: 500 }}>{q.q}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36 }}>
+      <p id={`q-${qIndex}-stem`} style={{ fontFamily: T.serif, fontSize: 24, lineHeight: 1.45, color: T.ink, marginBottom: 32, fontWeight: 500 }}>{q.q}</p>
+      <div role="radiogroup" aria-labelledby={`q-${qIndex}-stem`} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36 }}>
         {q.a.map((opt, i) => {
           const isSelected = selected === i;
           return (
-            <button key={i} onClick={() => onAnswer(qIndex, i)}
+            <button key={i} role="radio" aria-checked={isSelected} onClick={() => onAnswer(qIndex, i)}
               style={{ textAlign: 'left', padding: '16px 20px', border: `1px solid ${isSelected ? T.ink : T.hairline}`, background: isSelected ? T.paper2 : T.paper3, cursor: 'pointer', fontFamily: T.serif, fontSize: 17, color: T.ink, transition: 'all .15s', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-              <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 22, color: isSelected ? T.orange2 : T.muted, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
+              <span aria-hidden="true" style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 22, color: isSelected ? T.orange2 : T.muted, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
               <span style={{ lineHeight: 1.5 }}>{opt}</span>
             </button>
           );
@@ -801,7 +828,7 @@ const ReviewIncorrect = ({ items, onBack }) => {
     <Page narrow>
       <button onClick={onBack} style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 18 }}>← Back to results</button>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18, paddingBottom: 12, borderBottom: `1px solid ${T.ink}` }}>
-        <Pill color={T.red}>Missed · Subarea {SUBTESTS[q.s]?.roman}</Pill>
+        <Pill color={T.red}>Missed · {WELCOME.subareaWord} {SUBTESTS[q.s]?.roman}</Pill>
         <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted }}>Item {idx + 1} of {items.length}</div>
       </div>
       <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink2, marginBottom: 14 }}>{q.d}</div>
@@ -853,9 +880,9 @@ const Results = ({ scores, weakDomains, onContinue, isPost, pretestScores, sourc
         </div>
       </header>
       <section style={{ marginBottom: 36 }}>
-        <Cap color={T.orange2} mb={14}>— By Subarea</Cap>
+        <Cap color={T.orange2} mb={14}>— By {WELCOME.subareaWord}</Cap>
         {Object.entries(scores.subtests).map(([k, v]) => (
-          <ProgressRow key={k} value={pct(v.correct, v.total)} label={`Subarea ${SUBTESTS[k]?.roman} · ${SUBTESTS[k]?.label} (${v.correct}/${v.total})`} color={pct(v.correct, v.total) >= 70 ? T.green : T.red} />
+          <ProgressRow key={k} value={pct(v.correct, v.total)} label={`${WELCOME.subareaWord} ${SUBTESTS[k]?.roman} · ${SUBTESTS[k]?.label} (${v.correct}/${v.total})`} color={pct(v.correct, v.total) >= 70 ? T.green : T.red} />
         ))}
       </section>
       <section style={{ marginBottom: 36, paddingTop: 28, borderTop: `1px solid ${T.ink}` }}>
@@ -901,7 +928,11 @@ const Results = ({ scores, weakDomains, onContinue, isPost, pretestScores, sourc
       {missed.length > 0 && (
         <Btn onClick={() => setReviewing(true)} variant="ghost" style={{ width: '100%', padding: '14px', marginBottom: 14 }}>Review the {missed.length} Missed Question{missed.length > 1 ? 's' : ''}</Btn>
       )}
-      <Btn onClick={onContinue} variant="primary" style={{ width: '100%', padding: '16px' }}>{isPost ? 'View Final Summary' : weakDomains.length > 0 ? `Begin Study Modules (${weakDomains.length})` : 'Proceed to the Post-Test'}</Btn>
+      {isPost ? (
+        <Btn onClick={onContinue} variant="ghost" style={{ width: '100%', padding: '14px' }}>Start a New Course → <span style={{ fontStyle: 'italic', textTransform: 'none', letterSpacing: 0, marginLeft: 6, color: T.muted }}>(clears all progress)</span></Btn>
+      ) : (
+        <Btn onClick={onContinue} variant="primary" style={{ width: '100%', padding: '16px' }}>{weakDomains.length > 0 ? `Begin Study Modules (${weakDomains.length})` : 'Proceed to the Post-Test'}</Btn>
+      )}
     </Page>
   );
 };
@@ -960,8 +991,8 @@ const LearningModule = ({ domain, phase, pqIndex, pAnswers, onPAnswer, onBack, o
     <Page narrow>
       <Cap color={T.orange2} mb={8}>{domain} · Practice</Cap>
       <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, marginBottom: 24 }}>Question {pqIndex + 1} of {mod.practice.length}</div>
-      <p style={{ fontFamily: T.serif, fontSize: 22, lineHeight: 1.45, color: T.ink, marginBottom: 24, fontWeight: 500 }}>{pq.q}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+      <p id={`pq-${pqIndex}-stem`} style={{ fontFamily: T.serif, fontSize: 22, lineHeight: 1.45, color: T.ink, marginBottom: 24, fontWeight: 500 }}>{pq.q}</p>
+      <div role="radiogroup" aria-labelledby={`pq-${pqIndex}-stem`} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
         {pq.a.map((opt, i) => {
           const isSelected = pSelected === i;
           const showFeedback = pSelected !== undefined;
@@ -971,9 +1002,9 @@ const LearningModule = ({ domain, phase, pqIndex, pAnswers, onPAnswer, onBack, o
           else if (showFeedback && isSelected && !isCorrect) { bg = T.redBg; border = T.red; }
           else if (isSelected) { bg = T.paper2; border = T.ink; }
           return (
-            <button key={i} onClick={() => !showFeedback && onPAnswer(pqIndex, i)} disabled={showFeedback}
+            <button key={i} role="radio" aria-checked={isSelected} onClick={() => !showFeedback && onPAnswer(pqIndex, i)} disabled={showFeedback}
               style={{ textAlign: 'left', padding: '14px 18px', border: `1px solid ${border}`, background: bg, cursor: showFeedback ? 'default' : 'pointer', fontFamily: T.serif, fontSize: 16, color, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-              <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 20, color: T.ink2, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
+              <span aria-hidden="true" style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 20, color: T.ink2, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
               <span style={{ flex: 1, lineHeight: 1.5 }}>{opt}</span>
               {showFeedback && isCorrect && <span style={{ ...baseStyles.cap, fontSize: 9, color: T.green, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✓</span>}
               {showFeedback && isSelected && !isCorrect && <span style={{ ...baseStyles.cap, fontSize: 9, color: T.red, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✗</span>}
@@ -998,7 +1029,8 @@ const LearningModule = ({ domain, phase, pqIndex, pAnswers, onPAnswer, onBack, o
 
 // ─── DOMAIN GRID (used by Flashcards + Quiz pickers) ───────
 const DomainGrid = ({ onSelect, getCounts }) => {
-  const groups = { FOUND: [], STUDENTS: [], ASSESS: [], INSTRUCT: [] };
+  // dynamic — one bucket per SUBTESTS key, no hardcoded coupling
+  const groups = Object.fromEntries(Object.keys(SUBTESTS).map(k => [k, []]));
   Object.keys(MODULES).forEach(d => {
     const subtest = (PRETEST.find(q => q.d === d) || POSTTEST.find(q => q.d === d) || {}).s || 'FOUND';
     groups[subtest].push(d);
@@ -1008,7 +1040,7 @@ const DomainGrid = ({ onSelect, getCounts }) => {
       {Object.entries(groups).map(([k, domains]) => domains.length === 0 ? null : (
         <div key={k} style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${T.ink}` }}>
-            <Cap color={T.orange2}>Subarea {SUBTESTS[k]?.roman}</Cap>
+            <Cap color={T.orange2}>{WELCOME.subareaWord} {SUBTESTS[k]?.roman}</Cap>
             <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink }}>{SUBTESTS[k]?.label}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
@@ -1066,9 +1098,11 @@ const Flashcards = ({ st, up }) => {
         {allKnown ? `All ${order.length} cards marked known.` : `Card ${safePos + 1} of ${remaining.length} · ${st.fcKnown.length} marked known`}
       </p>
       {!allKnown && (
-        <div onClick={() => up({ fcFlipped: !st.fcFlipped })}
-          style={{ minHeight: 280, padding: 36, marginBottom: 20, background: st.fcFlipped ? T.paper2 : T.paper3, border: `1px solid ${T.ink}`, borderTop: `3px solid ${T.orange2}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <Cap color={T.orange2} mb={16}>{st.fcFlipped ? '— Detail · tap to flip' : '— Concept · tap to flip'}</Cap>
+        <div role="button" tabIndex={0} aria-pressed={st.fcFlipped} aria-label={`Flashcard ${safePos + 1} of ${remaining.length}. Press Space or Enter to flip.`}
+          onClick={() => up({ fcFlipped: !st.fcFlipped })}
+          onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); up({ fcFlipped: !st.fcFlipped }); } }}
+          style={{ minHeight: 280, padding: 36, marginBottom: 20, background: st.fcFlipped ? T.paper2 : T.paper3, border: `1px solid ${T.ink}`, borderTop: `3px solid ${T.orange2}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center', outline: 'none' }}>
+          <Cap color={T.orange2} mb={16}>{st.fcFlipped ? '— Detail · tap or press Space to flip' : '— Concept · tap or press Space to flip'}</Cap>
           {!st.fcFlipped
             ? <div style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 32, color: T.ink, lineHeight: 1.2, letterSpacing: '-.01em' }}>{concept.title}</div>
             : <div style={{ fontFamily: T.serif, fontSize: 17, color: T.ink, lineHeight: 1.7 }}>{concept.body}</div>}
@@ -1205,7 +1239,10 @@ const ConstructedResponse = ({ st, up }) => {
               <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 13, color: T.muted }}>{wordCount} words · saved locally</span>
             </div>
             <textarea value={draft} onChange={(e) => saveDraft(e.target.value)} placeholder="Compose your response here. Address each numbered part of the task. Your draft is saved automatically."
-              style={{ width: '100%', minHeight: 320, padding: '20px 24px', border: `1px solid ${T.ink}`, background: T.paper3, color: T.ink, fontSize: 17, lineHeight: 1.65, fontFamily: T.serif, resize: 'vertical', outline: 'none' }} />
+              aria-label="Draft response"
+              onFocus={(e) => { e.target.style.boxShadow = `0 0 0 3px ${T.orange2}40`; e.target.style.borderColor = T.orange2; }}
+              onBlur={(e) => { e.target.style.boxShadow = 'none'; e.target.style.borderColor = T.ink; }}
+              style={{ width: '100%', minHeight: 320, padding: '20px 24px', border: `1px solid ${T.ink}`, background: T.paper3, color: T.ink, fontSize: 17, lineHeight: 1.65, fontFamily: T.serif, resize: 'vertical', outline: 'none', transition: 'box-shadow .15s, border-color .15s' }} />
             <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
               <Btn onClick={() => up({ crView: 'rubric' })} variant="accent" style={{ flex: 1, minWidth: 160, padding: '14px' }}>Score with Rubric →</Btn>
               <Btn onClick={() => up({ crView: 'exemplar' })} variant="ghost" style={{ flex: 1, minWidth: 160, padding: '14px' }}>Compare to Exemplar →</Btn>
@@ -1271,28 +1308,57 @@ const ConstructedResponse = ({ st, up }) => {
 };
 
 // ─── APP ROOT ──────────────────────────────────────────────
+const STORAGE_KEY = 'swd-cst-060-state-v1';
+// fields that survive page reload (skip transient quiz session + reset confirmation)
+const PERSIST_FIELDS = ['phase', 'qIndex', 'answers', 'pretestScores', 'pretestAnswers', 'posttestAnswers', 'postScores', 'posttestStarted', 'completedModules', 'crPromptId'];
+
 export default function App() {
   const QUIZ_POOL = useMemo(() => buildQuizPool(), []);
-  const [st, setSt] = useState({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} });
+  const [st, setSt] = useState(() => {
+    const base = { ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} };
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        // only restore the persisted fields; ignore stale transient state
+        const restored = {};
+        for (const k of PERSIST_FIELDS) if (k in saved) restored[k] = saved[k];
+        return { ...base, ...restored };
+      }
+    } catch {}
+    return base;
+  });
   const up = (patch) => setSt(p => ({ ...p, ...patch }));
+  // persist milestone state on every change
+  useEffect(() => {
+    try {
+      const persist = {};
+      for (const k of PERSIST_FIELDS) if (k in st) persist[k] = st[k];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
+    } catch {}
+  }, [st]);
   const weak = st.pretestScores ? Object.entries(st.pretestScores.domains).filter(([, v]) => pct(v.correct, v.total) < 70).map(([d]) => d) : [];
   const handleNav = (id) => {
     const m = {
       welcome:    () => up({ phase: 'welcome',    confirmReset: false }),
       flashcards: () => up({ phase: 'flashcards', confirmReset: false }),
       quiz:       () => up({ phase: 'quizPicker', confirmReset: false, quizDomain: null, quizQs: null, quizIdx: 0, quizAnswers: {} }),
-      pretest:    () => up({ phase: 'pretest',    confirmReset: false }),
+      // restore the saved pretest/posttest answers so re-entering doesn't show the OTHER exam's selections
+      pretest:    () => up({ phase: 'pretest',    confirmReset: false, answers: { ...(st.pretestAnswers || {}) }, qIndex: 0 }),
       cresponse:  () => up({ phase: 'cresponse',  confirmReset: false }),
       results:    () => st.pretestScores && up({ phase: 'results',    confirmReset: false }),
       modules:    () => st.pretestScores && up({ phase: 'modules',    confirmReset: false }),
-      posttest:   () => st.pretestScores && up({ phase: 'posttest',   confirmReset: false }),
+      posttest:   () => st.pretestScores && up({ phase: 'posttest',   confirmReset: false, answers: { ...(st.posttestAnswers || {}) }, qIndex: 0, posttestStarted: !!st.postScores }),
       comparison: () => st.postScores    && up({ phase: 'comparison', confirmReset: false }),
     };
     m[id]?.();
   };
   const nav = <NavBar st={st} onNav={handleNav}
     onReset={() => up({ confirmReset: true })}
-    onConfirmReset={() => setSt({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} })}
+    onConfirmReset={() => {
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      setSt({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} });
+    }}
     onCancelReset={() => up({ confirmReset: false })} />;
   const Wrap = ({ children }) => <div style={{ background: T.paper, minHeight: '100vh', color: T.ink }}>{nav}{children}</div>;
 
@@ -1311,13 +1377,16 @@ export default function App() {
       <header style={{ textAlign: 'center', padding: '60px 0' }}>
         <Cap mb={12}>The Final Examination</Cap>
         <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 56, color: T.ink, letterSpacing: '-.01em', marginBottom: 18 }}>The Post-Test</h2>
-        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, color: T.ink2, lineHeight: 1.55, maxWidth: 540, margin: '0 auto 36px' }}>{POSTTEST.length} questions across the four subareas, all fresh. Demonstrate the growth of your study.</p>
+        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, color: T.ink2, lineHeight: 1.55, maxWidth: 540, margin: '0 auto 36px' }}>{POSTTEST.length} {WELCOME.posttestIntro}</p>
         <Btn onClick={() => up({ posttestStarted: true, answers: {}, qIndex: 0 })} variant="primary" style={{ padding: '18px 48px' }}>Begin the Post-Test</Btn>
       </header>
     </Page>
   ) : (
     <QuestionScreen questions={POSTTEST} answers={st.answers} qIndex={st.qIndex} onAnswer={(i, a) => up({ answers: { ...st.answers, [i]: a } })} onNav={(d) => up({ qIndex: Math.max(0, Math.min(POSTTEST.length - 1, st.qIndex + d)) })} onSubmit={() => { const s = calcScores(POSTTEST, st.answers); up({ phase: 'comparison', postScores: s, posttestAnswers: { ...st.answers } }); }} phase="Post-Test" />
   )}</Wrap>;
-  if (st.phase === 'comparison') return <Wrap><Results scores={st.postScores} weakDomains={[]} pretestScores={st.pretestScores} isPost={true} sourceQuestions={POSTTEST} sourceAnswers={st.posttestAnswers} onContinue={() => setSt({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} })} /></Wrap>;
+  if (st.phase === 'comparison') return <Wrap><Results scores={st.postScores} weakDomains={[]} pretestScores={st.pretestScores} isPost={true} sourceQuestions={POSTTEST} sourceAnswers={st.posttestAnswers} onContinue={() => {
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    setSt({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} });
+  }} /></Wrap>;
   return null;
 }
