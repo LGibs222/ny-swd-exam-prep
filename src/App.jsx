@@ -662,6 +662,33 @@ const Page = ({ children, narrow = false }) => (
   <div style={{ maxWidth: narrow ? 720 : 1120, margin: '0 auto', padding: '32px 40px 96px' }}>{children}</div>
 );
 
+// ─── ONE LOVE BRAND ────────────────────────────────────────
+const OneLoveLogo = ({ height = 26, dark = true }) => {
+  const inkColor = dark ? T.paper : T.ink;
+  const heartColor = dark ? '#c4493a' : '#a8302a';
+  return (
+    <svg height={height} viewBox="0 0 380 80" xmlns="http://www.w3.org/2000/svg" aria-label="One Love" style={{ display: 'block' }}>
+      <text x="170" y="60" textAnchor="end" fontFamily={T.serif} fontWeight="900" fontSize="54" letterSpacing="-1.2" fill={inkColor}>One</text>
+      <g transform="translate(190, 35)">
+        <path d="M 10 4 C 10 -2, 4 -6, 0 -2 C -4 -6, -10 -2, -10 4 C -10 11, 0 17, 0 17 C 0 17, 10 11, 10 4 Z" fill={heartColor}/>
+      </g>
+      <text x="208" y="60" fontFamily={T.serif} fontWeight="900" fontStyle="italic" fontSize="54" letterSpacing="-1.2" fill={inkColor}>Love</text>
+    </svg>
+  );
+};
+
+const OneLoveFooter = () => (
+  <footer style={{ borderTop: `1px solid ${T.ink}`, background: T.paper2, padding: '24px 24px 32px', marginTop: 48 }}>
+    <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, textAlign: 'center' }}>
+      <OneLoveLogo height={22} dark={false}/>
+      <div style={{ ...baseStyles.cap, fontSize: 9, color: T.muted, letterSpacing: '.18em' }}>Licensed Behavior Analysts PLLC</div>
+      <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 12, lineHeight: 1.6, color: T.muted, margin: 0, maxWidth: 640 }}>
+        One Love (Love Over Licensed Behavior Analysts, PLLC) is not affiliated with, endorsed by, or sponsored by the New York State Education Department or the Evaluation Systems group of Pearson. NYSTCE® and CST® are registered marks of their respective owners. This practice tool is provided for educational purposes only and does not guarantee passage of any New York State teacher certification examination.
+      </p>
+    </div>
+  </footer>
+);
+
 // ─── NAVBAR ────────────────────────────────────────────────
 const NAV_ITEMS = [
   { id: 'welcome',    label: 'Home',     always: true },
@@ -679,8 +706,13 @@ const NavBar = ({ st, onNav, onReset, onConfirmReset, onCancelReset }) => {
     : (st.phase === 'quizPicker' || st.phase === 'quizRun' || st.phase === 'quizDone') ? 'quiz'
     : st.phase;
   return (
-    <div style={{ background: T.paper2, borderBottom: `1px solid ${T.ink}`, padding: '10px 0', position: 'sticky', top: 0, zIndex: 200 }}>
-      <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
+    <div style={{ background: T.paper2, borderBottom: `1px solid ${T.ink}`, position: 'sticky', top: 0, zIndex: 200 }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto', padding: '8px 40px 6px', borderBottom: `1px solid ${T.hairline}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <button onClick={() => onNav('welcome')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} aria-label="Home">
+          <OneLoveLogo height={22} dark={false}/>
+        </button>
+      </div>
+      <div style={{ maxWidth: 1120, margin: '0 auto', padding: '8px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0, flex: 1 }}>
           {NAV_ITEMS.map(item => {
             const avail = item.always || !!st[item.needs];
@@ -1360,7 +1392,7 @@ export default function App() {
       setSt({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} });
     }}
     onCancelReset={() => up({ confirmReset: false })} />;
-  const Wrap = ({ children }) => <div style={{ background: T.paper, minHeight: '100vh', color: T.ink }}>{nav}{children}</div>;
+  const Wrap = ({ children }) => <div style={{ background: T.paper, minHeight: '100vh', color: T.ink, display: 'flex', flexDirection: 'column' }}>{nav}<div style={{ flex: 1 }}>{children}</div><OneLoveFooter/></div>;
 
   if (st.phase === 'welcome')    return <Wrap><Welcome onStart={() => up({ phase: 'pretest', qIndex: 0, answers: {} })} /></Wrap>;
   if (st.phase === 'flashcards') return <Wrap><Flashcards st={st} up={up} /></Wrap>;
