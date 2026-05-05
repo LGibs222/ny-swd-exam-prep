@@ -659,7 +659,9 @@ const Btn = ({ children, onClick, variant = 'primary', disabled = false, style =
   return <button onClick={disabled ? undefined : onClick} disabled={disabled} style={{ ...base, ...variants[variant], ...style }}>{children}</button>;
 };
 const Page = ({ children, narrow = false }) => (
-  <div style={{ maxWidth: narrow ? 720 : 1120, margin: '0 auto', padding: '32px 40px 96px' }}>{children}</div>
+  // narrow → 880px (was 720) so modules + question screens use more of the
+  // viewport without exceeding a comfortable serif reading line length.
+  <div style={{ maxWidth: narrow ? 880 : 1120, margin: '0 auto', padding: '32px 40px 96px' }}>{children}</div>
 );
 
 // ─── ONE LOVE BRAND ────────────────────────────────────────
