@@ -10,10 +10,11 @@ import { useEffect, useRef, useState } from 'react'
  *
  * To CHANGE THE PASSWORD:
  *   1. Pick a new password.
- *   2. In your terminal:
- *        node -e "const c=require('crypto');console.log(c.createHash('sha256').update('onelove-bcba:NEW_PASSWORD_HERE').digest('hex'))"
+ *   2. In your terminal (the string before the colon MUST equal ACCESS_SALT below):
+ *        node -e "const c=require('crypto');console.log(c.createHash('sha256').update('onelove-swd:NEW_PASSWORD_HERE').digest('hex'))"
  *   3. Paste the resulting 64-char hex string into ACCESS_HASH below.
- *   4. Commit + push.
+ *   4. Commit + push. Never write the plaintext password in this file —
+ *      the repo is public.
  *
  * To ENABLE LOGIN TRACKING (Google Sheet):
  *   1. Follow setup in repo README — deploy the Apps Script web app.
@@ -25,7 +26,7 @@ import { useEffect, useRef, useState } from 'react'
  * persisted session. Refreshing the tab returns the user to this gate.
  */
 const ACCESS_SALT = 'onelove-swd'
-const ACCESS_HASH = '242c02382639dcdd59e7d59db6000ca37788103c2cb8c4dc6ec53fbd51716cd6' // sha256("onelove-swd:onelove2026")
+const ACCESS_HASH = '242c02382639dcdd59e7d59db6000ca37788103c2cb8c4dc6ec53fbd51716cd6'
 const APP_NAME = 'SWD'
 const LOG_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzPJa2EKhCGep6WRsbqWjq_eHBx-wQ58p92KkkiayzvHjFkCekaHRFlyk0FVvECd-ckjg/exec'
 
@@ -89,7 +90,7 @@ export default function Gate({ children }) {
         logLogin(name)
         setAuthed(true)
       } else {
-        setError('That access code didn’t match. Check with your provider.')
+        setError('That access code didn’t match. Check with your instructor.')
       }
     } catch {
       setError('Browser couldn’t verify. Try a different browser.')
@@ -122,7 +123,7 @@ export default function Gate({ children }) {
           <OneLoveGateLogo/>
         </div>
         <div style={{ textAlign: 'center', fontSize: 10, fontWeight: 700, color: '#7a6b58', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 22 }}>
-          Licensed Behavior Analysts PLLC
+          Behavior Analysts, PLLC
         </div>
         <h1 style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 700, fontSize: 22, color: '#161210', margin: '0 0 6px', textAlign: 'center' }}>
           NY State Students with Disabilities Exam Prep
@@ -144,7 +145,7 @@ export default function Gate({ children }) {
             value={pw} onChange={e => setPw(e.target.value)} disabled={busy}
             style={fieldInput(!!error)}
           />
-          {error && <div style={{ marginTop: 8, fontSize: 12.5, color: '#a8302a' }}>{error}</div>}
+          {error && <div role="alert" style={{ marginTop: 8, fontSize: 12.5, color: '#a8302a' }}>{error}</div>}
           <button type="submit" disabled={busy || !pw || !name.trim()}
             style={{
               width: '100%', marginTop: 16, padding: '13px', borderRadius: 10, border: 'none',
@@ -158,6 +159,9 @@ export default function Gate({ children }) {
         </form>
         <p style={{ fontSize: 11, color: '#7a6b58', margin: '22px 0 0', textAlign: 'center', lineHeight: 1.5 }}>
           Need a code? Email <a href="mailto:lenwoodjr@gmail.com" style={{ color: '#161210', fontWeight: 600 }}>lenwoodjr@gmail.com</a>
+        </p>
+        <p style={{ fontSize: 10.5, color: '#7a6b58', margin: '10px 0 0', textAlign: 'center', lineHeight: 1.5 }}>
+          Your name and sign-in time are recorded for access tracking.
         </p>
       </div>
     </div>
