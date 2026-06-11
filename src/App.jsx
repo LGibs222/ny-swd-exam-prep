@@ -3,23 +3,26 @@ import { QuickCheck, CategorizeGame, AnimatedVisual, MasteryMap } from "./Engage
 import { TTSButton } from "./TTS.jsx";
 import { MODULE_ENHANCEMENTS } from "./data/moduleEnhancements.js";
 
-// ─── DESIGN SYSTEM (Tschichold Penguin · editorial cream/orange) ──
+// ─── DESIGN SYSTEM (BCBA "Sunrise" card system · OneLove warm palette) ──
+// Theme-switching tokens resolve to CSS variables (defined in GlobalStyles);
+// fixed warm accents stay concrete. Dark mode flips the vars via [data-theme].
 const T = {
-  paper:'#f1ead7', paper2:'#e8e0c8', paper3:'#fdf8e9',
-  ink:'#161410', ink2:'#3a342a',
-  orange:'#d4612a', orange2:'#a14a1f',
-  rule:'#161410', muted:'#6e6655',
-  green:'#3d6b3d', greenBg:'#dde9d8',
-  red:'#9a2929', redBg:'#f0dcdc',
-  hairline:'rgba(22,20,16,.18)',
-  serif:`'EB Garamond',Garamond,Georgia,serif`,
-  sans:`'Inter',system-ui,-apple-system,sans-serif`,
+  paper:'var(--bg)', paper2:'var(--surface-2)', paper3:'var(--surface)',
+  ink:'var(--text)', ink2:'var(--muted)',
+  orange:'var(--accent)', orange2:'var(--accent-2)',
+  rule:'var(--border)', muted:'var(--muted)',
+  green:'var(--green)', greenBg:'var(--green-bg)',
+  red:'var(--red)', redBg:'var(--red-bg)',
+  hairline:'var(--border)',
+  glass:'var(--surface)', solid:'var(--surface-solid)', shadow:'var(--shadow)',
+  serif:`Georgia,'Times New Roman',serif`,
+  sans:`'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif`,
 };
 
 const baseStyles = {
-  html: { background: T.paper, color: T.ink, fontFamily: T.serif, WebkitFontSmoothing: 'antialiased' },
-  cap: { fontFamily: T.sans, fontSize: 11, letterSpacing: '.18em', textTransform: 'uppercase', fontWeight: 600 },
-  capSm: { fontFamily: T.sans, fontSize: 10, letterSpacing: '.32em', textTransform: 'uppercase', fontWeight: 600, color: T.muted },
+  html: { background: 'var(--bg)', color: 'var(--text)', fontFamily: T.sans, WebkitFontSmoothing: 'antialiased' },
+  cap: { fontFamily: T.sans, fontSize: 11, letterSpacing: '.14em', textTransform: 'uppercase', fontWeight: 700 },
+  capSm: { fontFamily: T.sans, fontSize: 10, letterSpacing: '.16em', textTransform: 'uppercase', fontWeight: 700, color: T.muted },
   ital: { fontStyle: 'italic', fontWeight: 400 },
 };
 
@@ -955,7 +958,7 @@ const buildQuizPool = () => {
 };
 
 const INITIAL_STATE = {
-  phase:'welcome', qIndex:0, answers:{}, pretestScores:null,
+  phase:'welcome', qIndex:0, answers:{}, pretestScores:null, theme:'light',
   completedModules:[], activeModule:null, modPhase:'content', modPQIndex:0, modPAnswers:{},
   conceptProgress:{},
   postAnswers:{}, postScores:null,
@@ -969,40 +972,38 @@ const INITIAL_STATE = {
 const Cap = ({ children, color = T.muted, mb = 0 }) => (
   <div style={{ ...baseStyles.capSm, color, marginBottom: mb }}>{children}</div>
 );
-const Pill = ({ children, color = T.orange2 }) => (
-  <span style={{ ...baseStyles.cap, fontSize: 10, color, padding: '3px 0', borderTop: `1px solid ${color}`, borderBottom: `1px solid ${color}`, paddingLeft: 8, paddingRight: 8 }}>{children}</span>
+const Pill = ({ children, color = T.orange2, bg }) => (
+  <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, color, background: bg || 'var(--accent-bg)', padding: '3px 11px', borderRadius: 99, textTransform: 'uppercase', letterSpacing: '.06em', display: 'inline-block', whiteSpace: 'nowrap' }}>{children}</span>
 );
-const Rule = ({ thick = 1, color = T.ink, my = 0 }) => (
+const Rule = ({ thick = 1, color = T.hairline, my = 0 }) => (
   <div style={{ height: thick, background: color, marginTop: my, marginBottom: my }} />
 );
-const Card = ({ children, style = {} }) => (
-  <div style={{ background: T.paper3, border: `1px solid ${T.ink}`, padding: 24, ...style }}>{children}</div>
+const Card = ({ children, style = {}, className = '' }) => (
+  <div className={className} style={{ background: T.glass, backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: `1px solid ${T.hairline}`, borderRadius: 18, padding: 24, boxShadow: T.shadow, ...style }}>{children}</div>
 );
-const ProgressRow = ({ value, label, color = T.orange2 }) => (
+const ProgressRow = ({ value, label, color = T.orange }) => (
   <div style={{ marginBottom: 14 }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontFamily: T.serif, fontSize: 14 }}>
-      <span style={{ color: T.ink2 }}>{label}</span>
-      <span style={{ color, fontWeight: 600, fontFeatureSettings: "'tnum' 1" }}>{value}%</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontFamily: T.sans, fontSize: 13 }}>
+      <span style={{ color: T.muted }}>{label}</span>
+      <span style={{ color, fontWeight: 700, fontFeatureSettings: "'tnum' 1" }}>{value}%</span>
     </div>
     <div role="progressbar" aria-valuenow={value} aria-valuemin={0} aria-valuemax={100} aria-label={typeof label === 'string' ? label : undefined}
-      style={{ background: T.paper2, border: `1px solid ${T.hairline}`, height: 6, position: 'relative' }}>
-      <div style={{ width: `${value}%`, height: '100%', background: color, transition: 'width 0.6s ease' }} />
+      style={{ background: 'var(--border)', borderRadius: 99, height: 8, overflow: 'hidden' }}>
+      <div style={{ width: `${value}%`, height: '100%', background: color, borderRadius: 99, transition: 'width 0.6s ease' }} />
     </div>
   </div>
 );
 const Btn = ({ children, onClick, variant = 'primary', disabled = false, style = {} }) => {
-  const base = { padding: '14px 32px', fontFamily: T.sans, fontSize: 12, fontWeight: 600, letterSpacing: '.28em', textTransform: 'uppercase', border: 'none', cursor: disabled ? 'default' : 'pointer', transition: 'background .15s', display: 'inline-block', textDecoration: 'none' };
+  const base = { padding: '13px 26px', fontFamily: T.sans, fontSize: 14, fontWeight: 700, letterSpacing: 0, textTransform: 'none', border: 'none', borderRadius: 99, cursor: disabled ? 'default' : 'pointer', transition: 'transform .2s, box-shadow .2s, filter .2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none' };
   const variants = {
-    primary: { background: disabled ? T.muted : T.ink, color: T.paper },
-    ghost: { background: 'transparent', color: T.ink, border: `1px solid ${T.ink}`, padding: '13px 31px' },
-    accent: { background: disabled ? T.muted : T.orange2, color: T.paper },
+    primary: { background: disabled ? T.muted : 'var(--text)', color: 'var(--bg)', boxShadow: disabled ? 'none' : '0 4px 18px rgba(36,26,16,.18)' },
+    ghost: { background: 'transparent', color: T.ink, border: `1.5px solid ${T.hairline}` },
+    accent: { background: disabled ? T.muted : 'var(--accent)', color: '#fff', boxShadow: disabled ? 'none' : '0 4px 18px rgba(194,83,31,.28)' },
   };
-  return <button onClick={disabled ? undefined : onClick} disabled={disabled} style={{ ...base, ...variants[variant], ...style }}>{children}</button>;
+  return <button onClick={disabled ? undefined : onClick} disabled={disabled} className={disabled ? '' : 'btn-cta'} style={{ ...base, ...variants[variant], ...style }}>{children}</button>;
 };
 const Page = ({ children, narrow = false }) => (
-  // narrow → 880px (was 720) so modules + question screens use more of the
-  // viewport without exceeding a comfortable serif reading line length.
-  <div style={{ maxWidth: narrow ? 880 : 1120, margin: '0 auto', padding: '32px clamp(16px, 5vw, 40px) 96px' }}>{children}</div>
+  <div style={{ maxWidth: narrow ? 880 : 1120, margin: '0 auto', padding: '32px clamp(16px, 5vw, 40px) 96px', position: 'relative', zIndex: 1 }}>{children}</div>
 );
 
 // Concept-type accents — BCBA's 4-type card system, recolored to the CST warm
@@ -1030,7 +1031,7 @@ function KeyTermCard({ term, def, color, bg, border }) {
           <span style={{ fontFamily:T.serif, fontSize:14, fontWeight:700, color, textAlign:'center', lineHeight:1.3 }}>{term}</span>
         </div>
         <div style={{ position:'absolute', inset:0, backfaceVisibility:'hidden', WebkitBackfaceVisibility:'hidden',
-          transform:'rotateY(180deg)', background:'#fff', border:`1.5px solid ${border}`, borderRadius:10,
+          transform:'rotateY(180deg)', background:'var(--surface-solid)', border:`1.5px solid ${border}`, borderRadius:10,
           display:'flex', alignItems:'center', justifyContent:'center', padding:'8px 12px', minHeight:74 }}>
           <span style={{ fontFamily:T.serif, fontSize:12.5, color:T.ink, textAlign:'center', lineHeight:1.5 }}>{def}</span>
         </div>
@@ -1054,6 +1055,46 @@ const radioGroupKeys = (e) => {
 // rules go in this one global stylesheet instead.
 const GlobalStyles = () => (
   <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    :root {
+      --bg-base:#f4ecd9; --bg:var(--bg-base);
+      --surface:rgba(255,251,242,0.82); --surface-2:rgba(255,251,242,0.55); --surface-solid:#fffdf6;
+      --text:#241a10; --muted:#6e6353; --border:#e6d8bf;
+      --accent:#c2531f; --accent-2:#a14a1f; --accent-bg:#f6e2cf;
+      --green:#5a7a52; --green-bg:#e6eddd; --green-border:rgba(90,122,82,.4);
+      --red:#a8453a; --red-bg:#f4ddd6; --red-border:rgba(168,69,58,.4);
+      --gold:#b18432; --berry:#6f3047; --sage:#5a7a52;
+      --shadow:0 4px 24px rgba(36,26,16,0.08);
+    }
+    :root[data-theme="dark"] {
+      --bg-base:#1c150e;
+      --surface:rgba(255,246,232,0.06); --surface-2:rgba(255,246,232,0.04); --surface-solid:#2a2017;
+      --text:#f3ece0; --muted:#c7b69a; --border:rgba(255,246,232,0.12);
+      --accent:#e07a3f; --accent-2:#e0a071; --accent-bg:rgba(224,122,63,.16);
+      --green:#a8c8a0; --green-bg:rgba(168,200,160,.14); --green-border:rgba(168,200,160,.4);
+      --red:#e0928a; --red-bg:rgba(224,146,138,.14); --red-border:rgba(224,146,138,.4);
+      --gold:#d8a754; --berry:#b07088; --sage:#a8c8a0;
+      --shadow:0 6px 28px rgba(0,0,0,0.5);
+    }
+    html, body {
+      margin:0; color:var(--text);
+      font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(194,83,31,.12), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 100% 30%, rgba(177,132,50,.12), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 0% 100%, rgba(111,48,71,.10), transparent 70%),
+        var(--bg-base);
+      background-attachment:fixed;
+      transition:background .3s ease, color .3s ease;
+    }
+    :root[data-theme="dark"] html, :root[data-theme="dark"] body {
+      background:
+        radial-gradient(ellipse 80% 50% at 50% 0%, rgba(224,122,63,.10), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 100% 30%, rgba(216,167,84,.08), transparent 70%),
+        radial-gradient(ellipse 60% 50% at 0% 100%, rgba(176,112,136,.08), transparent 70%),
+        var(--bg-base);
+    }
     .ol-split { display: grid; grid-template-columns: 1fr 1px 1fr; }
     .ol-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
     @media (max-width: 760px) {
@@ -1064,13 +1105,31 @@ const GlobalStyles = () => (
     @keyframes conceptIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     .concept-in { animation: conceptIn .32s ease forwards; }
     .kt-card:hover { filter: brightness(.97); }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+    .fade-up { animation: fadeUp .5s cubic-bezier(.2,.7,.2,1) both; }
+    .fade-up-1{animation-delay:.05s}.fade-up-2{animation-delay:.13s}.fade-up-3{animation-delay:.21s}
+    .fade-up-4{animation-delay:.29s}.fade-up-5{animation-delay:.37s}.fade-up-6{animation-delay:.45s}
+    .lift { transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s, border-color .25s; }
+    .lift:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(36,26,16,.13); }
+    .btn-cta { } .btn-cta:hover { transform: translateY(-1px); filter: brightness(1.03); }
+    .cta-arrow { display:inline-block; transition: transform .25s cubic-bezier(.2,.7,.2,1); }
+    .btn-cta:hover .cta-arrow { transform: translateX(4px); }
+    @keyframes orbDrift { 0%,100%{transform:translate(0,0);} 50%{transform:translate(8px,-12px);} }
+    .welcome-orb { position:absolute; border-radius:50%; filter:blur(60px); pointer-events:none; z-index:0; animation:orbDrift 15s ease-in-out infinite; }
+    @keyframes shimmer { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+    .greeting-accent { background:linear-gradient(90deg,var(--accent) 0%,var(--berry) 50%,var(--gold) 100%); background-size:200% 100%; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; animation:shimmer 8s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .fade-up,.welcome-orb,.greeting-accent,.concept-in { animation:none !important; }
+      .fade-up { opacity:1 !important; transform:none !important; }
+      .lift,.btn-cta,.cta-arrow { transition:none !important; }
+    }
   `}</style>
 );
 
 // ─── ONE LOVE BRAND ────────────────────────────────────────
 const OneLoveLogo = ({ height = 26, dark = true }) => {
-  const inkColor = dark ? T.paper : T.ink;
-  const heartColor = dark ? '#c4493a' : '#a8302a';
+  const inkColor = dark ? '#f6efe0' : 'var(--text)';
+  const heartColor = dark ? '#e07a3f' : '#c2531f';
   return (
     <svg height={height} viewBox="0 0 380 80" xmlns="http://www.w3.org/2000/svg" aria-label="One Love" style={{ display: 'block' }}>
       <text x="170" y="60" textAnchor="end" fontFamily={T.serif} fontWeight="900" fontSize="54" letterSpacing="-1.2" fill={inkColor}>One</text>
@@ -1083,11 +1142,11 @@ const OneLoveLogo = ({ height = 26, dark = true }) => {
 };
 
 const OneLoveFooter = () => (
-  <footer style={{ borderTop: `1px solid ${T.ink}`, background: T.paper2, padding: '24px 24px 32px', marginTop: 48 }}>
-    <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, textAlign: 'center' }}>
+  <footer style={{ borderTop: `1px solid ${T.hairline}`, background: 'var(--surface-2)', padding: '22px 24px 30px', marginTop: 40 }}>
+    <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, textAlign: 'center' }}>
       <OneLoveLogo height={22} dark={false}/>
-      <div style={{ ...baseStyles.cap, fontSize: 9, color: T.muted, letterSpacing: '.18em' }}>Behavior Analysts, PLLC</div>
-      <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 12, lineHeight: 1.6, color: T.muted, margin: 0, maxWidth: 640 }}>
+      <div style={{ ...baseStyles.cap, fontSize: 9, color: T.muted }}>Behavior Analysts, PLLC</div>
+      <p style={{ fontFamily: T.sans, fontSize: 11, lineHeight: 1.55, color: T.muted, margin: 0, maxWidth: 640 }}>
         OneLove Behavior Analysts, PLLC is not affiliated with, endorsed by, or sponsored by the New York State Education Department or the Evaluation Systems group of Pearson. NYSTCE® and CST® are registered marks of their respective owners. This practice tool is provided for educational purposes only and does not guarantee passage of any New York State teacher certification examination.
       </p>
     </div>
@@ -1098,7 +1157,7 @@ const OneLoveFooter = () => (
 // new component type every render, remounting the whole subtree on each
 // state change (scroll/focus loss).
 const Shell = ({ nav, children }) => (
-  <div style={{ background: T.paper, minHeight: '100vh', color: T.ink, display: 'flex', flexDirection: 'column' }}>
+  <div style={{ minHeight: '100vh', color: 'var(--text)', display: 'flex', flexDirection: 'column' }}>
     <GlobalStyles />
     {nav}
     <div style={{ flex: 1 }}>{children}</div>
@@ -1118,37 +1177,41 @@ const NAV_ITEMS = [
   { id: 'posttest',   label: 'Post-Test',needs: 'pretestScores' },
   { id: 'comparison', label: 'Report',   needs: 'postScores' },
 ];
-const NavBar = ({ st, onNav, onReset, onConfirmReset, onCancelReset }) => {
+const NavBar = ({ st, onNav, onReset, onConfirmReset, onCancelReset, onToggleTheme }) => {
   const active = st.phase === 'module' ? 'modules'
     : (st.phase === 'quizPicker' || st.phase === 'quizRun' || st.phase === 'quizDone') ? 'quiz'
     : st.phase;
   return (
-    <div style={{ background: T.paper2, borderBottom: `1px solid ${T.ink}`, position: 'sticky', top: 0, zIndex: 200 }}>
-      <div style={{ maxWidth: 1120, margin: '0 auto', padding: '8px clamp(12px, 4vw, 40px) 6px', borderBottom: `1px solid ${T.hairline}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ background: '#241a10', position: 'sticky', top: 0, zIndex: 200, boxShadow: '0 2px 14px rgba(36,26,16,0.22)' }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto', padding: '9px clamp(12px, 4vw, 40px) 7px', borderBottom: '1px solid rgba(246,239,224,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <button onClick={() => onNav('welcome')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }} aria-label="Home">
-          <OneLoveLogo height={22} dark={false}/>
+          <OneLoveLogo height={22} dark={true}/>
         </button>
       </div>
-      <div style={{ maxWidth: 1120, margin: '0 auto', padding: '8px clamp(12px, 4vw, 40px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24 }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 0, flex: 1 }}>
+      <div style={{ maxWidth: 1120, margin: '0 auto', padding: '7px clamp(12px, 4vw, 40px) 9px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4, flex: 1 }}>
           {NAV_ITEMS.map(item => {
             const avail = item.always || !!st[item.needs];
             const isActive = active === item.id;
             return (
               <button key={item.id} onClick={() => avail && onNav(item.id)} disabled={!avail}
-                style={{ ...baseStyles.cap, fontSize: 11, color: isActive ? T.ink : (avail ? T.ink2 : T.muted), padding: '2px 0', margin: '0 14px 0 0', background: 'none', border: 'none', borderBottom: `2px solid ${isActive ? T.orange : 'transparent'}`, cursor: avail ? 'pointer' : 'default', whiteSpace: 'nowrap' }}>
+                style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, color: isActive ? '#241a10' : (avail ? '#f0e7d6' : 'rgba(240,231,214,0.4)'), padding: '5px 11px', borderRadius: 99, background: isActive ? '#f6efe0' : 'transparent', border: 'none', cursor: avail ? 'pointer' : 'default', whiteSpace: 'nowrap', transition: 'all .2s' }}>
                 {item.label}
               </button>
             );
           })}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <button onClick={onToggleTheme} title={st.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={{ padding: '4px 9px', borderRadius: 99, border: '1px solid rgba(246,239,224,0.2)', background: 'transparent', color: '#f0e7d6', cursor: 'pointer', fontSize: 13, lineHeight: 1 }}>
+            {st.theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           {!st.confirmReset
-            ? <button onClick={onReset} style={{ ...baseStyles.cap, fontSize: 10, color: T.red, background: 'none', border: 'none', cursor: 'pointer' }}>Reset</button>
-            : <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ ...baseStyles.cap, fontSize: 9, color: T.muted }}>Start over?</span>
-                <button onClick={onConfirmReset} style={{ ...baseStyles.cap, fontSize: 9, color: T.paper, background: T.red, padding: '3px 8px', border: 'none', cursor: 'pointer' }}>Yes</button>
-                <button onClick={onCancelReset} style={{ ...baseStyles.cap, fontSize: 9, color: T.muted, background: 'none', padding: '3px 8px', border: `1px solid ${T.muted}`, cursor: 'pointer' }}>No</button>
+            ? <button onClick={onReset} style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em', color: '#e0928a', background: 'none', border: 'none', cursor: 'pointer' }}>Reset</button>
+            : <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontFamily: T.sans, fontSize: 9, color: '#c7b69a' }}>Start over?</span>
+                <button onClick={onConfirmReset} style={{ fontFamily: T.sans, fontSize: 9, fontWeight: 700, color: '#fff', background: '#a8453a', padding: '3px 8px', borderRadius: 6, border: 'none', cursor: 'pointer' }}>Yes</button>
+                <button onClick={onCancelReset} style={{ fontFamily: T.sans, fontSize: 9, color: '#c7b69a', background: 'none', padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(246,239,224,0.25)', cursor: 'pointer' }}>No</button>
               </div>}
         </div>
       </div>
@@ -1159,92 +1222,84 @@ const NavBar = ({ st, onNav, onReset, onConfirmReset, onCancelReset }) => {
 // ─── WELCOME ───────────────────────────────────────────────
 const Welcome = ({ onStart }) => (
   <Page>
-    <div style={{ margin: '0 0 32px', borderTop: `1px solid ${T.ink}`, borderBottom: `1px solid ${T.ink}`, padding: '18px 24px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
-        <span style={baseStyles.capSm}>{WELCOME.triBand[0]}</span>
-        <span style={{ width: 38, height: 38, border: `1.5px solid ${T.ink}`, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, fontWeight: 500, color: T.ink }}>𝒮</span>
-        <span style={baseStyles.capSm}>{WELCOME.triBand[1]}</span>
-      </div>
-    </div>
-    <header style={{ textAlign: 'center', padding: '0 0 40px', borderBottom: `3px solid ${T.ink}` }}>
-      <Cap mb={32}>{WELCOME.imprint}</Cap>
-      <h1 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 'clamp(46px, 9vw, 84px)', lineHeight: 1.02, color: T.ink, letterSpacing: '-.01em', marginBottom: 22 }}>
-        {WELCOME.title.pre} <span style={{ ...baseStyles.ital, color: T.orange2 }}>{WELCOME.title.italic}</span> {WELCOME.title.post}
+    <div className="welcome-orb" style={{ top: -70, right: -50, width: 300, height: 300, background: 'radial-gradient(circle, rgba(194,83,31,.18) 0%, transparent 70%)' }} />
+    <div className="welcome-orb" style={{ top: '40%', left: -110, width: 320, height: 320, background: 'radial-gradient(circle, rgba(177,132,50,.16) 0%, transparent 70%)', animationDelay: '-5s' }} />
+
+    {/* Hero */}
+    <header className="fade-up fade-up-1" style={{ textAlign: 'center', padding: '20px 0 34px' }}>
+      <div style={{ ...baseStyles.cap, fontSize: 11, color: T.muted, marginBottom: 16 }}>{WELCOME.imprint}</div>
+      <h1 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: 'clamp(2.4rem, 6vw, 3.8rem)', lineHeight: 1.04, color: T.ink, letterSpacing: '-.03em', margin: '0 0 18px' }}>
+        {WELCOME.title.pre} <span className="greeting-accent">{WELCOME.title.italic}</span> {WELCOME.title.post}
       </h1>
-      <p style={{ fontFamily: T.serif, fontSize: 21, color: T.ink2, maxWidth: 680, margin: '0 auto 28px', lineHeight: 1.5, fontStyle: 'italic' }}>
-        {WELCOME.subtitle}
-      </p>
-      <div style={{ ...baseStyles.cap, fontSize: 11, color: T.muted }}>
-        {WELCOME.alignment.map((item, i) => (
-          <span key={item}>
-            {i > 0 && <span style={{ margin: '0 12px', color: T.orange }}>·</span>}
-            <span style={{ color: T.ink, fontWeight: 600 }}>{item}</span>
-          </span>
-        ))}
+      <p style={{ fontFamily: T.sans, fontSize: '1.06rem', color: T.muted, maxWidth: 620, margin: '0 auto 22px', lineHeight: 1.6 }}>{WELCOME.subtitle}</p>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+        {WELCOME.alignment.map(item => <Pill key={item} color={T.orange2}>{item}</Pill>)}
       </div>
     </header>
+
+    {/* Know the Test */}
     {WELCOME.testFacts && (
-      <section style={{ marginTop: 44 }}>
-        <div style={{ marginBottom: 20, paddingBottom: 12, borderBottom: `1px solid ${T.ink}`, textAlign: 'center' }}>
-          <Cap color={T.orange2} mb={8}>— Know the Test</Cap>
-          <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 34, color: T.ink, letterSpacing: '-.005em' }}>{WELCOME.testFacts.heading}</h2>
+      <section className="fade-up fade-up-2" style={{ marginTop: 18 }}>
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <Cap color={T.orange2} mb={6}>Know the Test</Cap>
+          <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: '1.5rem', color: T.ink, letterSpacing: '-.02em', margin: 0 }}>{WELCOME.testFacts.heading}</h2>
         </div>
-        <div className="ol-grid2" style={{ gap: 24 }}>
+        <div className="ol-grid2" style={{ gap: 16 }}>
           {WELCOME.testFacts.tables.map((tbl, ti) => (
-            <div key={ti} style={{ marginBottom: 12 }}>
-              {tbl.title && <Cap color={T.ink2} mb={8}>{tbl.title}</Cap>}
-              <div style={{ border: `1px solid ${T.ink}`, background: T.paper3 }}>
-                {tbl.rows.map((row, ri) => (
-                  <div key={ri} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, padding: '10px 16px', borderBottom: ri < tbl.rows.length - 1 ? `1px solid ${T.hairline}` : 'none', fontFamily: T.serif, fontSize: 14, lineHeight: 1.45 }}>
-                    <span style={{ color: T.ink2 }}>{row[0]}</span>
-                    <span style={{ color: T.ink, fontWeight: 600, textAlign: 'right', fontFeatureSettings: "'tnum' 1" }}>{row[1]}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Card key={ti} className="lift" style={{ padding: '18px 20px' }}>
+              {tbl.title && <Cap color={T.muted} mb={10}>{tbl.title}</Cap>}
+              {tbl.rows.map((row, ri) => (
+                <div key={ri} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, padding: '9px 0', borderBottom: ri < tbl.rows.length - 1 ? `1px solid ${T.hairline}` : 'none', fontFamily: T.sans, fontSize: 14, lineHeight: 1.4 }}>
+                  <span style={{ color: T.muted }}>{row[0]}</span>
+                  <span style={{ color: T.ink, fontWeight: 700, textAlign: 'right', fontFeatureSettings: "'tnum' 1" }}>{row[1]}</span>
+                </div>
+              ))}
+            </Card>
           ))}
         </div>
-        {WELCOME.testFacts.note && <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 13, color: T.muted, lineHeight: 1.6, marginTop: 8, textAlign: 'center' }}>{WELCOME.testFacts.note}</p>}
+        {WELCOME.testFacts.note && <p style={{ fontFamily: T.sans, fontSize: 12.5, color: T.muted, lineHeight: 1.6, marginTop: 12, textAlign: 'center' }}>{WELCOME.testFacts.note}</p>}
       </section>
     )}
-    <section className="ol-split" style={{ padding: '48px 0 0' }}>
-      <div style={{ padding: '0 32px' }}>
-        <div style={{ marginBottom: 28, paddingBottom: 14, borderBottom: `1px solid ${T.ink}` }}>
-          <Cap color={T.orange2} mb={8}>— The Method</Cap>
-          <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 36, color: T.ink, letterSpacing: '-.005em', lineHeight: 1 }}>How This Works</h2>
-        </div>
-        {WELCOME.steps.map(([title, desc], i, arr) => (
-          <div key={i} style={{ display: 'grid', gridTemplateColumns: '48px 1fr', gap: 18, padding: '18px 0', borderBottom: i < arr.length - 1 ? `1px solid ${T.hairline}` : 'none' }}>
-            <div style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 30, color: T.orange2, fontWeight: 500, lineHeight: 1.05 }}>{i + 1}.</div>
+
+    {/* Method + Contents */}
+    <section className="ol-split fade-up fade-up-3" style={{ padding: '40px 0 0' }}>
+      <div style={{ padding: '0 28px' }}>
+        <Cap color={T.orange2} mb={6}>The Method</Cap>
+        <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: '1.5rem', color: T.ink, letterSpacing: '-.02em', margin: '0 0 18px' }}>How This Works</h2>
+        {WELCOME.steps.map(([title, desc], i) => (
+          <div key={i} style={{ display: 'grid', gridTemplateColumns: '40px 1fr', gap: 14, marginBottom: 14 }}>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent-bg)', color: T.orange2, fontFamily: T.sans, fontWeight: 800, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{i + 1}</div>
             <div>
-              <h3 style={{ fontFamily: T.serif, fontWeight: 600, fontSize: 18, marginBottom: 4, lineHeight: 1.2 }}>{title}</h3>
-              <p style={{ fontFamily: T.serif, fontSize: 15, color: T.ink2, lineHeight: 1.55 }}>{desc}</p>
+              <h3 style={{ fontFamily: T.sans, fontWeight: 700, fontSize: 16, margin: '4px 0 3px', color: T.ink }}>{title}</h3>
+              <p style={{ fontFamily: T.sans, fontSize: 14, color: T.muted, lineHeight: 1.55, margin: 0 }}>{desc}</p>
             </div>
           </div>
         ))}
       </div>
-      <div className="ol-vrule" style={{ background: T.ink, width: 1 }} />
-      <div style={{ padding: '0 32px' }}>
-        <div style={{ marginBottom: 28, paddingBottom: 14, borderBottom: `1px solid ${T.ink}` }}>
-          <Cap color={T.orange2} mb={8}>— {WELCOME.subareasHeading}</Cap>
-          <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 36, color: T.ink, letterSpacing: '-.005em', lineHeight: 1 }}>Contents</h2>
-        </div>
-        {Object.entries(SUBTESTS).map(([k, v], i, arr) => (
-          <div key={k} style={{ padding: '18px 0', borderBottom: i < arr.length - 1 ? `1px solid ${T.hairline}` : 'none' }}>
-            <Cap color={T.orange2} mb={5}>{WELCOME.subareaWord} {v.roman}</Cap>
-            <h3 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 21, letterSpacing: '-.005em', lineHeight: 1.2, marginBottom: 5 }}>{v.label}</h3>
+      <div className="ol-vrule" style={{ background: T.hairline, width: 1 }} />
+      <div style={{ padding: '0 28px' }}>
+        <Cap color={T.orange2} mb={6}>{WELCOME.subareasHeading}</Cap>
+        <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: '1.5rem', color: T.ink, letterSpacing: '-.02em', margin: '0 0 18px' }}>Contents</h2>
+        {Object.entries(SUBTESTS).map(([k, v]) => (
+          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', marginBottom: 8, borderRadius: 12, background: 'var(--surface)', border: `1px solid ${T.hairline}` }}>
+            <span style={{ fontFamily: T.sans, fontWeight: 800, fontSize: 13, color: T.orange2, minWidth: 30 }}>{v.roman}</span>
+            <span style={{ fontFamily: T.sans, fontSize: 15, fontWeight: 600, color: T.ink, lineHeight: 1.25 }}>{v.label}</span>
           </div>
         ))}
       </div>
     </section>
-    <div style={{ textAlign: 'center', marginTop: 64, paddingTop: 48, borderTop: `3px solid ${T.ink}` }}>
-      <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, color: T.ink2, marginBottom: 24, lineHeight: 1.5, maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
+
+    {/* CTA */}
+    <div className="fade-up fade-up-4" style={{ textAlign: 'center', marginTop: 48 }}>
+      <p style={{ fontFamily: T.sans, fontSize: '1.02rem', color: T.muted, marginBottom: 20, lineHeight: 1.5, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
         Begin with the diagnostic pretest. The course is sequential.
       </p>
-      <Btn onClick={onStart} variant="primary" style={{ padding: '18px 56px', fontSize: 12, letterSpacing: '.32em' }}>Begin the Pretest</Btn>
+      <Btn onClick={onStart} variant="accent" style={{ padding: '16px 44px', fontSize: 16 }}>Begin the Pretest <span className="cta-arrow">→</span></Btn>
     </div>
-    <div style={{ marginTop: 56, paddingTop: 24, borderTop: `1px solid ${T.ink}`, textAlign: 'center', fontFamily: T.serif, fontStyle: 'italic', fontSize: 13, color: T.muted, lineHeight: 1.6, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto' }}>
-      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink, marginBottom: 6, fontStyle: 'normal' }}>Colophon</div>
+
+    {/* Colophon */}
+    <div className="fade-up fade-up-5" style={{ marginTop: 48, paddingTop: 22, borderTop: `1px solid ${T.hairline}`, textAlign: 'center', fontFamily: T.sans, fontSize: 12.5, color: T.muted, lineHeight: 1.6, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto' }}>
+      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink, marginBottom: 6 }}>Colophon</div>
       {WELCOME.colophon}
     </div>
   </Page>
@@ -1259,35 +1314,36 @@ const QuestionScreen = ({ questions, answers, qIndex, onAnswer, onNav, onSubmit,
   const subtest = SUBTESTS[q.s];
   return (
     <Page narrow>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18, paddingBottom: 12, borderBottom: `1px solid ${T.ink}` }}>
-        <div><Pill color={T.orange2}>{WELCOME.subareaWord} {subtest.roman} · {subtest.label}</Pill></div>
-        <div style={{ ...baseStyles.cap, fontSize: 11, color: T.muted }}>Question {qIndex + 1} of {total}</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, gap: 12, flexWrap: 'wrap' }}>
+        <Pill color={T.orange2}>{WELCOME.subareaWord} {subtest.roman} · {subtest.label}</Pill>
+        <span style={{ fontFamily: T.sans, fontSize: 13, color: T.muted, fontWeight: 600 }}>Question {qIndex + 1} of {total}</span>
       </div>
-      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink2, marginBottom: 14 }}>{q.d}</div>
-      <div style={{ height: 3, background: T.paper2, marginBottom: 36, position: 'relative' }}>
-        <div style={{ width: `${((qIndex + 1) / total) * 100}%`, height: '100%', background: T.orange2, transition: 'width .3s' }} />
+      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, marginBottom: 14 }}>{q.d}</div>
+      <div style={{ height: 6, background: 'var(--border)', borderRadius: 99, marginBottom: 26, overflow: 'hidden' }}>
+        <div style={{ width: `${((qIndex + 1) / total) * 100}%`, height: '100%', background: T.orange, borderRadius: 99, transition: 'width .3s' }} />
       </div>
-      <p id={`q-${qIndex}-stem`} style={{ fontFamily: T.serif, fontSize: 24, lineHeight: 1.45, color: T.ink, marginBottom: 32, fontWeight: 500 }}>{q.q}</p>
-      <div role="radiogroup" aria-labelledby={`q-${qIndex}-stem`} onKeyDown={radioGroupKeys} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 36 }}>
+      <Card style={{ marginBottom: 18, padding: '22px 24px' }}>
+        <p id={`q-${qIndex}-stem`} style={{ fontFamily: T.serif, fontSize: 20, lineHeight: 1.55, color: T.ink, margin: 0, fontWeight: 500 }}>{q.q}</p>
+      </Card>
+      <div role="radiogroup" aria-labelledby={`q-${qIndex}-stem`} onKeyDown={radioGroupKeys} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
         {q.a.map((opt, i) => {
           const isSelected = selected === i;
           return (
             <button key={i} role="radio" aria-checked={isSelected} onClick={() => onAnswer(qIndex, i)}
               tabIndex={isSelected || (selected === undefined && i === 0) ? 0 : -1}
-              style={{ textAlign: 'left', padding: '16px 20px', paddingLeft: isSelected ? 17 : 20, border: `1px solid ${isSelected ? T.ink : T.hairline}`, borderLeft: isSelected ? `4px solid ${T.orange2}` : `1px solid ${T.hairline}`, background: isSelected ? T.paper2 : T.paper3, cursor: 'pointer', fontFamily: T.serif, fontSize: 17, color: T.ink, fontWeight: isSelected ? 600 : 400, transition: 'all .15s', display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-              <span aria-hidden="true" style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 22, color: isSelected ? T.orange2 : T.muted, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
+              style={{ textAlign: 'left', padding: '13px 16px', borderRadius: 14, border: `2px solid ${isSelected ? T.orange : T.hairline}`, background: isSelected ? 'var(--accent-bg)' : T.glass, cursor: 'pointer', fontFamily: T.sans, fontSize: 15.5, color: T.ink, transition: 'all .15s', display: 'flex', alignItems: 'center', gap: 13 }}>
+              <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, border: `2px solid ${isSelected ? T.orange : T.hairline}`, background: isSelected ? T.orange : 'transparent', color: isSelected ? '#fff' : T.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>{['A', 'B', 'C', 'D'][i]}</span>
               <span style={{ lineHeight: 1.5 }}>{opt}</span>
             </button>
           );
         })}
       </div>
-      <Rule color={T.ink} my={0} />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 20 }}>
-        <Btn onClick={() => onNav(-1)} variant="ghost" disabled={qIndex === 0} style={{ padding: '10px 22px' }}>← Back</Btn>
-        <span style={{ ...baseStyles.cap, fontSize: 10, color: T.muted }}>{answeredCount} of {total} answered</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+        <Btn onClick={() => onNav(-1)} variant="ghost" disabled={qIndex === 0} style={{ padding: '11px 22px' }}>← Back</Btn>
+        <span style={{ fontFamily: T.sans, fontSize: 12, color: T.muted, fontWeight: 600 }}>{answeredCount} of {total} answered</span>
         {qIndex < total - 1
-          ? <Btn onClick={() => onNav(1)} variant="primary" style={{ padding: '10px 22px' }}>Next →</Btn>
-          : <Btn onClick={onSubmit} variant="accent" disabled={answeredCount < total} style={{ padding: '10px 22px' }}>{answeredCount < total ? `${total - answeredCount} unanswered` : `Submit ${phase}`}</Btn>}
+          ? <Btn onClick={() => onNav(1)} variant="primary" style={{ padding: '11px 24px' }}>Next →</Btn>
+          : <Btn onClick={onSubmit} variant="accent" disabled={answeredCount < total} style={{ padding: '11px 24px' }}>{answeredCount < total ? `${total - answeredCount} unanswered` : `Submit ${phase}`}</Btn>}
       </div>
     </Page>
   );
@@ -1301,35 +1357,37 @@ const ReviewIncorrect = ({ items, onBack }) => {
   return (
     <Page narrow>
       <button onClick={onBack} style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 18 }}>← Back to results</button>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18, paddingBottom: 12, borderBottom: `1px solid ${T.ink}` }}>
-        <Pill color={T.red}>Missed · {WELCOME.subareaWord} {SUBTESTS[q.s]?.roman}</Pill>
-        <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted }}>Item {idx + 1} of {items.length}</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, gap: 12 }}>
+        <Pill color={T.red} bg={T.redBg}>Missed · {WELCOME.subareaWord} {SUBTESTS[q.s]?.roman}</Pill>
+        <span style={{ fontFamily: T.sans, fontSize: 12, color: T.muted }}>Item {idx + 1} of {items.length}</span>
       </div>
-      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.ink2, marginBottom: 14 }}>{q.d}</div>
-      <p style={{ fontFamily: T.serif, fontSize: 22, lineHeight: 1.45, color: T.ink, marginBottom: 24, fontWeight: 500 }}>{q.q}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, marginBottom: 14 }}>{q.d}</div>
+      <Card style={{ marginBottom: 16, padding: '20px 22px' }}>
+        <p style={{ fontFamily: T.serif, fontSize: 19, lineHeight: 1.5, color: T.ink, margin: 0, fontWeight: 500 }}>{q.q}</p>
+      </Card>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {q.a.map((opt, i) => {
           const isCorrect = i === q.c;
           const isUser = i === cur.user;
-          let bg = T.paper3, border = T.hairline, marker = null;
-          if (isCorrect) { bg = T.greenBg; border = T.green; marker = <span style={{ ...baseStyles.cap, fontSize: 9, color: T.green, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✓ Correct</span>; }
-          else if (isUser) { bg = T.redBg; border = T.red; marker = <span style={{ ...baseStyles.cap, fontSize: 9, color: T.red, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✗ Your answer</span>; }
+          let bg = T.glass, border = T.hairline, ring = T.hairline, rbg = 'transparent', rfg = T.muted, marker = null;
+          if (isCorrect) { bg = 'var(--green-bg)'; border = 'var(--green-border)'; ring = T.green; rbg = T.green; rfg = '#fff'; marker = <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, color: T.green, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✓ Correct</span>; }
+          else if (isUser) { bg = 'var(--red-bg)'; border = 'var(--red-border)'; ring = T.red; rbg = T.red; rfg = '#fff'; marker = <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, color: T.red, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✗ Your answer</span>; }
           return (
-            <div key={i} style={{ padding: '14px 18px', border: `1px solid ${border}`, background: bg, fontFamily: T.serif, fontSize: 16, color: T.ink, display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-              <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 20, color: T.ink2, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
+            <div key={i} style={{ padding: '12px 16px', borderRadius: 14, border: `2px solid ${border}`, background: bg, fontFamily: T.sans, fontSize: 15, color: T.ink, display: 'flex', alignItems: 'center', gap: 13 }}>
+              <span style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, border: `2px solid ${ring}`, background: rbg, color: rfg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>{['A', 'B', 'C', 'D'][i]}</span>
               <span style={{ flex: 1, lineHeight: 1.5 }}>{opt}</span>
               {marker}
             </div>
           );
         })}
       </div>
-      <div style={{ background: T.paper2, border: `1px solid ${T.ink}`, padding: '20px 24px', marginBottom: 28 }}>
-        <div style={{ ...baseStyles.cap, fontSize: 10, color: T.orange2, marginBottom: 8 }}>— Annotation</div>
-        <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.6, color: T.ink, fontStyle: 'italic' }}>{q.r}</p>
-      </div>
+      <Card style={{ marginBottom: 24, background: 'var(--accent-bg)' }}>
+        <div style={{ ...baseStyles.cap, fontSize: 10, color: T.orange2, marginBottom: 8 }}>Annotation</div>
+        <p style={{ fontFamily: T.sans, fontSize: 15, lineHeight: 1.6, color: T.ink, margin: 0 }}>{q.r}</p>
+      </Card>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 14 }}>
-        <Btn onClick={() => setIdx(Math.max(0, idx - 1))} variant="ghost" disabled={idx === 0} style={{ padding: '10px 22px' }}>← Previous</Btn>
-        <Btn onClick={() => idx < items.length - 1 ? setIdx(idx + 1) : onBack()} variant="primary" style={{ padding: '10px 22px' }}>{idx < items.length - 1 ? 'Next →' : 'Done'}</Btn>
+        <Btn onClick={() => setIdx(Math.max(0, idx - 1))} variant="ghost" disabled={idx === 0} style={{ padding: '11px 22px' }}>← Previous</Btn>
+        <Btn onClick={() => idx < items.length - 1 ? setIdx(idx + 1) : onBack()} variant="primary" style={{ padding: '11px 22px' }}>{idx < items.length - 1 ? 'Next →' : 'Done'}</Btn>
       </div>
     </Page>
   );
@@ -1344,68 +1402,65 @@ const Results = ({ scores, weakDomains, onContinue, isPost, pretestScores, sourc
   if (reviewing && missed.length > 0) return <ReviewIncorrect items={missed} onBack={() => setReviewing(false)} />;
   return (
     <Page narrow>
-      <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 28, borderBottom: `3px solid ${T.ink}` }}>
-        <Cap mb={12}>{isPost ? 'Post-Test · Final Examination' : 'Pretest · Diagnostic'}</Cap>
-        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em', marginBottom: 14 }}>
-          {isPost ? 'Final Results' : 'Diagnostic Results'}
-        </h2>
-        <div style={{ fontFamily: T.serif, fontSize: 22, color: T.ink2, fontStyle: 'italic' }}>
-          Overall score: <span style={{ color: T.orange2, fontWeight: 600, fontStyle: 'normal' }}>{overallPct}%</span> <span style={{ color: T.muted }}>({overall.correct} of {overall.total})</span>
-        </div>
+      <header style={{ textAlign: 'center', marginBottom: 26 }}>
+        <div style={{ fontSize: 46, marginBottom: 6 }}>{overallPct >= 70 ? '📈' : '📊'}</div>
+        <Cap color={T.orange2} mb={8}>{isPost ? 'Post-Test · Final Examination' : 'Pretest · Diagnostic'}</Cap>
+        <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: '2rem', color: T.ink, letterSpacing: '-.02em', margin: '0 0 8px' }}>{isPost ? 'Final Results' : 'Diagnostic Results'}</h2>
+        <div style={{ fontFamily: T.sans, fontSize: 16, color: T.muted }}>Overall score: <span style={{ color: T.orange2, fontWeight: 800 }}>{overallPct}%</span> ({overall.correct} of {overall.total})</div>
       </header>
-      <section style={{ marginBottom: 36 }}>
-        <Cap color={T.orange2} mb={14}>— By {WELCOME.subareaWord}</Cap>
+      <Card style={{ marginBottom: 18 }}>
+        <Cap color={T.orange2} mb={14}>By {WELCOME.subareaWord}</Cap>
         {Object.entries(scores.subtests).map(([k, v]) => (
           <ProgressRow key={k} value={pct(v.correct, v.total)} label={`${WELCOME.subareaWord} ${SUBTESTS[k]?.roman} · ${SUBTESTS[k]?.label} (${v.correct}/${v.total})`} color={pct(v.correct, v.total) >= 70 ? T.green : T.red} />
         ))}
-      </section>
-      <section style={{ marginBottom: 36, paddingTop: 28, borderTop: `1px solid ${T.ink}` }}>
-        <Cap color={T.orange2} mb={14}>— By Domain</Cap>
+      </Card>
+      <Card style={{ marginBottom: 18 }}>
+        <Cap color={T.orange2} mb={14}>By Domain</Cap>
         {Object.entries(scores.domains).map(([d, v]) => {
           const p = pct(v.correct, v.total);
           const needsWork = p < 70;
           return (
-            <div key={d} style={{ marginBottom: 14, padding: '12px 16px', background: needsWork ? T.redBg : 'transparent', border: `1px solid ${needsWork ? T.red : T.hairline}` }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontFamily: T.serif, fontSize: 15, fontWeight: 600, color: T.ink }}>{d}</span>
-                {needsWork && <Pill color={T.red}>Review</Pill>}
+            <div key={d} style={{ marginBottom: 12, padding: '12px 14px', borderRadius: 12, background: needsWork ? 'var(--red-bg)' : 'transparent', border: `1px solid ${needsWork ? 'var(--red-border)' : T.hairline}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, gap: 10 }}>
+                <span style={{ fontFamily: T.sans, fontSize: 14, fontWeight: 700, color: T.ink }}>{d}</span>
+                {needsWork && <Pill color={T.red} bg={T.redBg}>Review</Pill>}
               </div>
               <ProgressRow value={p} label={`${v.correct} of ${v.total} correct`} color={needsWork ? T.red : T.green} />
             </div>
           );
         })}
-      </section>
+      </Card>
       {isPost && pretestScores && (
-        <section style={{ marginBottom: 36, padding: '28px 32px', background: T.paper2, border: `1px solid ${T.ink}` }}>
-          <Cap color={T.orange2} mb={14}>— Growth Across the Course</Cap>
+        <Card style={{ marginBottom: 18 }}>
+          <Cap color={T.orange2} mb={14}>Growth Across the Course</Cap>
           {Object.entries(scores.domains).map(([d, v]) => {
             const pre = pretestScores.domains[d]; if (!pre) return null;
             const preP = pct(pre.correct, pre.total); const postP = pct(v.correct, v.total); const diff = postP - preP;
             return (
-              <div key={d} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '8px 0', borderBottom: `1px solid ${T.hairline}`, fontFamily: T.serif, fontSize: 15 }}>
-                <span style={{ color: T.ink2 }}>{d}</span>
-                <span style={{ color: diff > 0 ? T.green : diff < 0 ? T.red : T.muted, fontWeight: 600, fontFeatureSettings: "'tnum' 1" }}>{preP}% → {postP}% <span style={{ marginLeft: 6 }}>({diff > 0 ? '+' : ''}{diff}%)</span></span>
+              <div key={d} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, padding: '8px 0', borderBottom: `1px solid ${T.hairline}`, fontFamily: T.sans, fontSize: 14 }}>
+                <span style={{ color: T.muted }}>{d}</span>
+                <span style={{ color: diff > 0 ? T.green : diff < 0 ? T.red : T.muted, fontWeight: 700, whiteSpace: 'nowrap' }}>{preP}% → {postP}% ({diff > 0 ? '+' : ''}{diff}%)</span>
               </div>
             );
           })}
-        </section>
+        </Card>
       )}
       {!isPost && weakDomains.length > 0 && (
-        <section style={{ marginBottom: 36, padding: '24px 32px', background: T.paper3, border: `1px solid ${T.orange}` }}>
-          <Cap color={T.orange2} mb={10}>— Recommended Study</Cap>
-          <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 15, color: T.ink2, marginBottom: 12 }}>{weakDomains.length} {weakDomains.length === 1 ? 'domain' : 'domains'} below 70%. The course advises study before the post-test.</p>
+        <Card style={{ marginBottom: 18, background: 'var(--accent-bg)' }}>
+          <Cap color={T.orange2} mb={10}>Recommended Study</Cap>
+          <p style={{ fontFamily: T.sans, fontSize: 14, color: T.ink, marginBottom: 12, lineHeight: 1.5 }}>{weakDomains.length} {weakDomains.length === 1 ? 'domain' : 'domains'} below 70%. The course advises study before the post-test.</p>
           {weakDomains.map(d => (
-            <div key={d} style={{ fontFamily: T.serif, fontSize: 15, color: T.ink, padding: '4px 0' }}>→ {d}</div>
+            <div key={d} style={{ fontFamily: T.sans, fontSize: 14, fontWeight: 600, color: T.ink, padding: '3px 0' }}>→ {d}</div>
           ))}
-        </section>
+        </Card>
       )}
       {missed.length > 0 && (
-        <Btn onClick={() => setReviewing(true)} variant="ghost" style={{ width: '100%', padding: '14px', marginBottom: 14 }}>Review the {missed.length} Missed Question{missed.length > 1 ? 's' : ''}</Btn>
+        <Btn onClick={() => setReviewing(true)} variant="ghost" style={{ width: '100%', padding: '14px', marginBottom: 12 }}>Review the {missed.length} Missed Question{missed.length > 1 ? 's' : ''}</Btn>
       )}
       {isPost ? (
-        <Btn onClick={onContinue} variant="ghost" style={{ width: '100%', padding: '14px' }}>Start a New Course → <span style={{ fontStyle: 'italic', textTransform: 'none', letterSpacing: 0, marginLeft: 6, color: T.muted }}>(clears all progress)</span></Btn>
+        <Btn onClick={onContinue} variant="ghost" style={{ width: '100%', padding: '14px' }}>Start a New Course → (clears all progress)</Btn>
       ) : (
-        <Btn onClick={onContinue} variant="primary" style={{ width: '100%', padding: '16px' }}>{weakDomains.length > 0 ? `Begin Study Modules (${weakDomains.length})` : 'Proceed to the Post-Test'}</Btn>
+        <Btn onClick={onContinue} variant="accent" style={{ width: '100%', padding: '16px' }}>{weakDomains.length > 0 ? `Begin Study Modules (${weakDomains.length})` : 'Proceed to the Post-Test'}</Btn>
       )}
     </Page>
   );
@@ -1416,36 +1471,37 @@ const ModuleHub = ({ domains, weakDomains, completedModules, onSelect, onSkip })
   const weakDone = weakDomains.every(d => completedModules.includes(d));
   return (
   <Page narrow>
-    <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
-      <Cap mb={12}>The Course of Study</Cap>
-      <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em' }}>Your Study Plan</h2>
-      <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2, marginTop: 12 }}>
+    <header style={{ textAlign: 'center', marginBottom: 26 }}>
+      <Cap color={T.orange2} mb={8}>The Course of Study</Cap>
+      <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: '2rem', color: T.ink, letterSpacing: '-.02em', margin: 0 }}>Your Study Plan</h2>
+      <p style={{ fontFamily: T.sans, fontSize: 15, color: T.muted, marginTop: 10, maxWidth: 560, marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.5 }}>
         {weakDomains.length > 0 ? 'Modules flagged from your pretest are listed first — start there. Every module is open to study.' : 'No domains fell below 70% on your pretest. Study any module, or proceed to the post-test.'}
       </p>
     </header>
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {domains.map((d, i) => {
         const mod = MODULES[d];
         const done = completedModules.includes(d);
         const flagged = weakDomains.includes(d);
         return (
-          <div key={d} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '20px 0', borderBottom: i < domains.length - 1 ? `1px solid ${T.hairline}` : `1px solid ${T.ink}` }}>
+          <Card key={d} className="lift" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '16px 20px' }}>
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 4 }}>
-                <Cap color={T.orange2}>Module {String(i + 1).padStart(2, '0')}</Cap>
-                {flagged && !done && <Pill color={T.red}>Review</Pill>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5, flexWrap: 'wrap' }}>
+                <Cap color={T.muted}>Module {String(i + 1).padStart(2, '0')}</Cap>
+                {done && <Pill color={T.green} bg={T.greenBg}>✓ Completed</Pill>}
+                {flagged && !done && <Pill color={T.red} bg={T.redBg}>Review</Pill>}
               </div>
-              <h3 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 22, letterSpacing: '-.005em', marginBottom: 4 }}>{d}</h3>
-              <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 14, color: T.muted }}>{mod?.concepts?.length || 0} concepts · {mod?.practice?.length || 0} practice questions</p>
+              <h3 style={{ fontFamily: T.sans, fontWeight: 700, fontSize: 17, color: T.ink, margin: '0 0 3px', letterSpacing: '-.01em' }}>{d}</h3>
+              <p style={{ fontFamily: T.sans, fontSize: 13, color: T.muted, margin: 0 }}>{mod?.concepts?.length || 0} concepts · {mod?.practice?.length || 0} practice questions</p>
             </div>
-            <Btn onClick={() => onSelect(d)} variant={done ? 'ghost' : (flagged ? 'primary' : 'ghost')} style={{ padding: '10px 22px' }}>{done ? '✓ Completed' : 'Begin →'}</Btn>
-          </div>
+            <Btn onClick={() => onSelect(d)} variant={done ? 'ghost' : (flagged ? 'accent' : 'primary')} style={{ padding: '10px 22px' }}>{done ? 'Revisit' : 'Begin →'}</Btn>
+          </Card>
         );
       })}
     </div>
-    <div style={{ marginTop: 36, textAlign: 'center', paddingTop: 24, borderTop: `1px solid ${T.ink}` }}>
-      <p style={{ ...baseStyles.cap, fontSize: 11, color: T.muted, marginBottom: 16 }}>{completedModules.length} of {domains.length} modules completed{weakDomains.length > 0 ? ` · ${weakDomains.filter(d => completedModules.includes(d)).length} of ${weakDomains.length} flagged` : ''}</p>
-      <Btn onClick={onSkip} variant={weakDone ? 'primary' : 'ghost'} style={{ padding: '14px 36px' }}>{weakDone ? 'Begin Post-Test →' : 'Skip to Post-Test →'}</Btn>
+    <div style={{ marginTop: 28, textAlign: 'center' }}>
+      <p style={{ fontFamily: T.sans, fontSize: 12, fontWeight: 600, color: T.muted, marginBottom: 14 }}>{completedModules.length} of {domains.length} modules completed{weakDomains.length > 0 ? ` · ${weakDomains.filter(d => completedModules.includes(d)).length} of ${weakDomains.length} flagged` : ''}</p>
+      <Btn onClick={onSkip} variant={weakDone ? 'accent' : 'ghost'} style={{ padding: '14px 36px' }}>{weakDone ? 'Begin Post-Test →' : 'Skip to Post-Test →'}</Btn>
     </div>
   </Page>
   );
@@ -1516,9 +1572,9 @@ const ConceptStudy = ({ domain, conceptProgress, onConceptView, onConceptRate, o
           <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.7, color: T.ink, margin: 0 }}>{concept.body}</p>
 
           {concept.example && (
-            <div style={{ marginTop: 20, background: '#fff8ea', borderLeft: `4px solid ${T.orange}`, borderRadius: '0 10px 10px 0', padding: '14px 16px' }}>
+            <div style={{ marginTop: 20, background: 'var(--accent-bg)', borderLeft: `4px solid ${T.orange}`, borderRadius: '0 10px 10px 0', padding: '14px 16px' }}>
               <div style={{ ...baseStyles.cap, fontSize: 10, color: T.orange2, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 5 }}><span aria-hidden="true">📋</span> Applied Example</div>
-              <p style={{ fontFamily: T.serif, fontSize: 15, lineHeight: 1.65, color: T.ink2, margin: 0, fontStyle: 'italic' }}>{concept.example}</p>
+              <p style={{ fontFamily: T.serif, fontSize: 15, lineHeight: 1.65, color: T.ink, margin: 0, fontStyle: 'italic' }}>{concept.example}</p>
             </div>
           )}
 
@@ -1570,34 +1626,36 @@ const LearningModule = ({ domain, phase, pqIndex, pAnswers, onPAnswer, onBack, o
   return (
     <Page narrow>
       <Cap color={T.orange2} mb={8}>{domain} · Practice</Cap>
-      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, marginBottom: 24 }}>Question {pqIndex + 1} of {mod.practice.length}</div>
-      <p id={`pq-${pqIndex}-stem`} style={{ fontFamily: T.serif, fontSize: 22, lineHeight: 1.45, color: T.ink, marginBottom: 24, fontWeight: 500 }}>{pq.q}</p>
-      <div role="radiogroup" aria-labelledby={`pq-${pqIndex}-stem`} onKeyDown={radioGroupKeys} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+      <div style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, marginBottom: 18 }}>Question {pqIndex + 1} of {mod.practice.length}</div>
+      <Card style={{ marginBottom: 16, padding: '20px 22px' }}>
+        <p id={`pq-${pqIndex}-stem`} style={{ fontFamily: T.serif, fontSize: 19, lineHeight: 1.5, color: T.ink, margin: 0, fontWeight: 500 }}>{pq.q}</p>
+      </Card>
+      <div role="radiogroup" aria-labelledby={`pq-${pqIndex}-stem`} onKeyDown={radioGroupKeys} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {pq.a.map((opt, i) => {
           const isSelected = pSelected === i;
           const showFeedback = pSelected !== undefined;
           const isCorrect = i === pq.c;
-          let bg = T.paper3, border = T.hairline, color = T.ink;
-          if (showFeedback && isCorrect) { bg = T.greenBg; border = T.green; }
-          else if (showFeedback && isSelected && !isCorrect) { bg = T.redBg; border = T.red; }
-          else if (isSelected) { bg = T.paper2; border = T.ink; }
+          let bg = T.glass, border = T.hairline, ring = T.hairline, rbg = 'transparent', rfg = T.muted;
+          if (showFeedback && isCorrect) { bg = 'var(--green-bg)'; border = 'var(--green-border)'; ring = T.green; rbg = T.green; rfg = '#fff'; }
+          else if (showFeedback && isSelected && !isCorrect) { bg = 'var(--red-bg)'; border = 'var(--red-border)'; ring = T.red; rbg = T.red; rfg = '#fff'; }
+          else if (isSelected) { bg = 'var(--accent-bg)'; border = T.orange; ring = T.orange; rbg = T.orange; rfg = '#fff'; }
           return (
             <button key={i} role="radio" aria-checked={isSelected} onClick={() => !showFeedback && onPAnswer(pqIndex, i)} disabled={showFeedback}
               tabIndex={isSelected || (pSelected === undefined && i === 0) ? 0 : -1}
-              style={{ textAlign: 'left', padding: '14px 18px', border: `1px solid ${border}`, background: bg, cursor: showFeedback ? 'default' : 'pointer', fontFamily: T.serif, fontSize: 16, color, display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-              <span aria-hidden="true" style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 20, color: T.ink2, fontWeight: 500, lineHeight: 1, flexShrink: 0 }}>{['a.', 'b.', 'c.', 'd.'][i]}</span>
+              style={{ textAlign: 'left', padding: '12px 16px', borderRadius: 14, border: `2px solid ${border}`, background: bg, cursor: showFeedback ? 'default' : 'pointer', fontFamily: T.sans, fontSize: 15, color: T.ink, display: 'flex', gap: 13, alignItems: 'center' }}>
+              <span aria-hidden="true" style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, border: `2px solid ${ring}`, background: rbg, color: rfg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800 }}>{['A', 'B', 'C', 'D'][i]}</span>
               <span style={{ flex: 1, lineHeight: 1.5 }}>{opt}</span>
-              {showFeedback && isCorrect && <span style={{ ...baseStyles.cap, fontSize: 9, color: T.green, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✓</span>}
-              {showFeedback && isSelected && !isCorrect && <span style={{ ...baseStyles.cap, fontSize: 9, color: T.red, marginLeft: 'auto', whiteSpace: 'nowrap' }}>✗</span>}
+              {showFeedback && isCorrect && <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, color: T.green, marginLeft: 'auto' }}>✓</span>}
+              {showFeedback && isSelected && !isCorrect && <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, color: T.red, marginLeft: 'auto' }}>✗</span>}
             </button>
           );
         })}
       </div>
       {pSelected !== undefined && (
-        <div style={{ background: T.paper2, border: `1px solid ${T.ink}`, padding: '20px 24px', marginBottom: 20 }}>
-          <Cap color={T.orange2} mb={8}>— Annotation</Cap>
-          <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.6, color: T.ink, fontStyle: 'italic' }}>{pq.r}</p>
-        </div>
+        <Card style={{ marginBottom: 18, background: 'var(--accent-bg)' }}>
+          <Cap color={T.orange2} mb={8}>Annotation</Cap>
+          <p style={{ fontFamily: T.sans, fontSize: 15, lineHeight: 1.6, color: T.ink, margin: 0 }}>{pq.r}</p>
+        </Card>
       )}
       {pSelected !== undefined && (
         pqIndex < mod.practice.length - 1
@@ -1619,20 +1677,19 @@ const DomainGrid = ({ onSelect, getCounts }) => {
   return (
     <div>
       {Object.entries(groups).map(([k, domains]) => domains.length === 0 ? null : (
-        <div key={k} style={{ marginBottom: 28 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 12, paddingBottom: 8, borderBottom: `1px solid ${T.ink}` }}>
+        <div key={k} style={{ marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 12 }}>
             <Cap color={T.orange2}>{WELCOME.subareaWord} {SUBTESTS[k]?.roman}</Cap>
-            <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink }}>{SUBTESTS[k]?.label}</span>
+            <span style={{ fontFamily: T.sans, fontSize: 14, fontWeight: 600, color: T.ink }}>{SUBTESTS[k]?.label}</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
-            {domains.map((d, i) => {
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 10 }}>
+            {domains.map((d) => {
               const meta = getCounts ? getCounts(d) : null;
-              const isLeft = i % 2 === 0;
               return (
-                <button key={d} onClick={() => onSelect(d)}
-                  style={{ textAlign: 'left', padding: '14px 18px', border: 'none', borderBottom: `1px solid ${T.hairline}`, borderRight: isLeft ? `1px solid ${T.hairline}` : 'none', background: T.paper3, cursor: 'pointer', fontFamily: T.serif }}>
-                  <div style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 16, color: T.ink, lineHeight: 1.3, marginBottom: 4 }}>{d}</div>
-                  {meta && <div style={{ ...baseStyles.cap, fontSize: 9, color: T.muted }}>{meta}</div>}
+                <button key={d} onClick={() => onSelect(d)} className="lift"
+                  style={{ textAlign: 'left', padding: '14px 16px', borderRadius: 14, border: `1px solid ${T.hairline}`, background: T.glass, backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', boxShadow: T.shadow, cursor: 'pointer' }}>
+                  <div style={{ fontFamily: T.sans, fontWeight: 700, fontSize: 15, color: T.ink, lineHeight: 1.3, marginBottom: 4 }}>{d}</div>
+                  {meta && <div style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 600, color: T.muted }}>{meta}</div>}
                 </button>
               );
             })}
@@ -1647,10 +1704,10 @@ const DomainGrid = ({ onSelect, getCounts }) => {
 const Flashcards = ({ st, up }) => {
   if (!st.fcDomain) return (
     <Page narrow>
-      <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
-        <Cap mb={12}>The Reading Cards</Cap>
-        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em' }}>Flashcards</h2>
-        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2, marginTop: 12 }}>Choose a domain to study its key concepts.</p>
+      <header style={{ textAlign: 'center', marginBottom: 26 }}>
+        <Cap color={T.orange2} mb={8}>The Reading Cards</Cap>
+        <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: '2rem', color: T.ink, letterSpacing: '-.02em', margin: 0 }}>Flashcards</h2>
+        <p style={{ fontFamily: T.sans, fontSize: 15, color: T.muted, marginTop: 10 }}>Choose a domain to study its key concepts.</p>
       </header>
       <DomainGrid getCounts={d => `${MODULES[d].concepts.length} concepts`} onSelect={d => {
         const order = shuffle(MODULES[d].concepts.map((_, i) => i));
@@ -1675,24 +1732,24 @@ const Flashcards = ({ st, up }) => {
     <Page narrow>
       <button onClick={() => up({ fcDomain: null, fcOrder: [], fcPos: 0, fcFlipped: false, fcKnown: [] })} style={{ ...baseStyles.cap, fontSize: 10, color: T.muted, background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginBottom: 18 }}>← Choose another domain</button>
       <Cap color={T.orange2} mb={6}>{st.fcDomain}</Cap>
-      <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 14, color: T.muted, marginBottom: 20 }}>
+      <p style={{ fontFamily: T.sans, fontSize: 13, color: T.muted, marginBottom: 18, fontWeight: 600 }}>
         {allKnown ? `All ${order.length} cards marked known.` : `Card ${safePos + 1} of ${remaining.length} · ${st.fcKnown.length} marked known`}
       </p>
       {!allKnown && (
         <div role="button" tabIndex={0} aria-pressed={st.fcFlipped} aria-label={`Flashcard ${safePos + 1} of ${remaining.length}. Press Space or Enter to flip.`}
           onClick={() => up({ fcFlipped: !st.fcFlipped })}
           onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); up({ fcFlipped: !st.fcFlipped }); } }}
-          style={{ minHeight: 280, padding: 36, marginBottom: 20, background: st.fcFlipped ? T.paper2 : T.paper3, border: `1px solid ${T.ink}`, borderTop: `3px solid ${T.orange2}`, cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center', outline: 'none' }}>
-          <Cap color={T.orange2} mb={16}>{st.fcFlipped ? '— Detail · tap or press Space to flip' : '— Concept · tap or press Space to flip'}</Cap>
+          style={{ minHeight: 280, padding: 36, marginBottom: 18, background: T.glass, backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', border: `1px solid ${T.hairline}`, borderTop: `3px solid ${T.orange}`, borderRadius: 18, boxShadow: T.shadow, cursor: 'pointer', display: 'flex', flexDirection: 'column', justifyContent: 'center', outline: 'none' }}>
+          <Cap color={T.orange2} mb={16}>{st.fcFlipped ? 'Detail · tap or press Space to flip' : 'Concept · tap or press Space to flip'}</Cap>
           {!st.fcFlipped
-            ? <div style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 32, color: T.ink, lineHeight: 1.2, letterSpacing: '-.01em' }}>{concept.title}</div>
+            ? <div style={{ fontFamily: T.sans, fontWeight: 800, fontSize: 30, color: T.ink, lineHeight: 1.2, letterSpacing: '-.02em' }}>{concept.title}</div>
             : <div style={{ fontFamily: T.serif, fontSize: 17, color: T.ink, lineHeight: 1.7 }}>{concept.body}</div>}
         </div>
       )}
       {allKnown && (
-        <Card style={{ textAlign: 'center', marginBottom: 20 }}>
-          <Cap color={T.green} mb={8}>— Completed</Cap>
-          <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink, marginTop: 8 }}>You have marked every card known. Reset the deck or choose a new domain.</p>
+        <Card style={{ textAlign: 'center', marginBottom: 18 }}>
+          <Cap color={T.green} mb={8}>Completed</Cap>
+          <p style={{ fontFamily: T.sans, fontSize: 16, color: T.ink, marginTop: 8 }}>You have marked every card known. Reset the deck or choose a new domain.</p>
         </Card>
       )}
       <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
@@ -1707,11 +1764,11 @@ const Flashcards = ({ st, up }) => {
           const nextRemaining = order.filter(idx => !nextKnown.includes(idx));
           up({ fcKnown: nextKnown, fcFlipped: false, fcPos: Math.min(safePos, Math.max(0, nextRemaining.length - 1)) });
         }} disabled={allKnown}
-          style={{ ...baseStyles.cap, fontSize: 10, flex: 2, padding: '12px', border: `1px solid ${isKnown ? T.green : T.ink}`, background: isKnown ? T.greenBg : T.paper3, color: isKnown ? T.green : T.ink, cursor: allKnown ? 'default' : 'pointer' }}>
+          style={{ fontFamily: T.sans, fontSize: 12, fontWeight: 700, flex: 2, padding: '12px', borderRadius: 99, border: `1.5px solid ${isKnown ? T.green : T.hairline}`, background: isKnown ? 'var(--green-bg)' : 'transparent', color: isKnown ? T.green : T.ink, cursor: allKnown ? 'default' : 'pointer' }}>
           {isKnown ? '✓ Marked known · tap to unmark' : 'Mark known'}
         </button>
-        <Btn onClick={() => up({ fcOrder: shuffle(order), fcPos: 0, fcFlipped: false })} variant="ghost" style={{ flex: 1, padding: '12px', fontSize: 10 }}>Shuffle</Btn>
-        <Btn onClick={() => up({ fcKnown: [], fcPos: 0, fcFlipped: false })} variant="ghost" style={{ flex: 1, padding: '12px', fontSize: 10 }}>Reset</Btn>
+        <Btn onClick={() => up({ fcOrder: shuffle(order), fcPos: 0, fcFlipped: false })} variant="ghost" style={{ flex: 1, padding: '12px', fontSize: 12 }}>Shuffle</Btn>
+        <Btn onClick={() => up({ fcKnown: [], fcPos: 0, fcFlipped: false })} variant="ghost" style={{ flex: 1, padding: '12px', fontSize: 12 }}>Reset</Btn>
       </div>
     </Page>
   );
@@ -1722,15 +1779,15 @@ const QuizPicker = ({ pool, onStart }) => {
   const [len, setLen] = useState(10);
   return (
     <Page narrow>
-      <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
-        <Cap mb={12}>The Brief Examination</Cap>
-        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em' }}>Quick Quiz</h2>
-        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2, marginTop: 12 }}>Choose a domain and quiz length.</p>
+      <header style={{ textAlign: 'center', marginBottom: 26 }}>
+        <Cap color={T.orange2} mb={8}>The Brief Examination</Cap>
+        <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: '2rem', color: T.ink, letterSpacing: '-.02em', margin: 0 }}>Quick Quiz</h2>
+        <p style={{ fontFamily: T.sans, fontSize: 15, color: T.muted, marginTop: 10 }}>Choose a domain and quiz length.</p>
       </header>
-      <div style={{ display: 'flex', gap: 10, marginBottom: 28, justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 26, justifyContent: 'center' }}>
         {[5, 10].map(n => (
           <button key={n} onClick={() => setLen(n)}
-            style={{ ...baseStyles.cap, fontSize: 11, padding: '12px 28px', border: `1px solid ${len === n ? T.ink : T.hairline}`, background: len === n ? T.paper2 : T.paper3, color: len === n ? T.ink : T.muted, cursor: 'pointer' }}>
+            style={{ fontFamily: T.sans, fontSize: 13, fontWeight: 700, padding: '10px 26px', borderRadius: 99, border: `2px solid ${len === n ? T.orange : T.hairline}`, background: len === n ? 'var(--accent-bg)' : 'transparent', color: len === n ? T.orange2 : T.muted, cursor: 'pointer' }}>
             {n} questions
           </button>
         ))}
@@ -1753,10 +1810,10 @@ const QuizResults = ({ domain, qs, answers, onRetry, onPick }) => {
   if (reviewing && missed.length > 0) return <ReviewIncorrect items={missed} onBack={() => setReviewing(false)} />;
   return (
     <Page narrow>
-      <header style={{ textAlign: 'center', marginBottom: 36, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
-        <Cap mb={12}>{domain} · Quick Quiz</Cap>
-        <div style={{ fontFamily: T.serif, fontSize: 64, fontWeight: 500, color: p >= 70 ? T.green : T.red, lineHeight: 1, marginBottom: 12, fontFeatureSettings: "'tnum' 1" }}>{p}%</div>
-        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2 }}>{correct} of {qs.length} correct</p>
+      <header style={{ textAlign: 'center', marginBottom: 28 }}>
+        <Cap color={T.orange2} mb={10}>{domain} · Quick Quiz</Cap>
+        <div style={{ fontFamily: T.sans, fontSize: 64, fontWeight: 800, color: p >= 70 ? T.green : T.red, lineHeight: 1, marginBottom: 10, letterSpacing: '-.02em' }}>{p}%</div>
+        <p style={{ fontFamily: T.sans, fontSize: 16, color: T.muted }}>{correct} of {qs.length} correct</p>
       </header>
       {missed.length > 0 && (
         <Btn onClick={() => setReviewing(true)} variant="ghost" style={{ width: '100%', padding: '14px', marginBottom: 12 }}>Review the {missed.length} Missed</Btn>
@@ -1781,50 +1838,50 @@ const ConstructedResponse = ({ st, up }) => {
     const active = st.crView === id;
     return (
       <button onClick={() => up({ crView: id })}
-        style={{ ...baseStyles.cap, fontSize: 11, flex: 1, padding: '12px', border: `1px solid ${active ? T.ink : T.hairline}`, background: active ? T.paper2 : T.paper3, color: active ? T.ink : T.muted, cursor: 'pointer', borderBottom: active ? `3px solid ${T.orange2}` : `1px solid ${T.hairline}` }}>{label}</button>
+        style={{ fontFamily: T.sans, fontSize: 12, fontWeight: 700, flex: 1, padding: '11px', borderRadius: 99, border: `1.5px solid ${active ? T.orange : T.hairline}`, background: active ? 'var(--accent-bg)' : 'transparent', color: active ? T.orange2 : T.muted, cursor: 'pointer' }}>{label}</button>
     );
   };
   return (
     <Page narrow>
-      <header style={{ textAlign: 'center', marginBottom: 28, paddingBottom: 24, borderBottom: `3px solid ${T.ink}` }}>
-        <Cap mb={12}>The Written Assignment</Cap>
-        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 48, color: T.ink, letterSpacing: '-.01em' }}>Constructed Response</h2>
-        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 17, color: T.ink2, marginTop: 12 }}>{WELCOME.crSubtitle || 'Case-study analysis · constructed-response practice'}</p>
+      <header style={{ textAlign: 'center', marginBottom: 24 }}>
+        <Cap color={T.orange2} mb={8}>The Written Assignment</Cap>
+        <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: '2rem', color: T.ink, letterSpacing: '-.02em', margin: 0 }}>Constructed Response</h2>
+        <p style={{ fontFamily: T.sans, fontSize: 15, color: T.muted, marginTop: 10 }}>{WELCOME.crSubtitle || 'Case-study analysis · constructed-response practice'}</p>
       </header>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
         {CR_PROMPTS.map((p, i) => {
           const active = p.id === st.crPromptId;
           return (
-            <button key={p.id} onClick={() => up({ crPromptId: p.id, crView: 'prompt', crSelfScore: {} })}
-              style={{ flex: 1, minWidth: 240, padding: '14px 18px', border: `1px solid ${active ? T.ink : T.hairline}`, background: active ? T.paper2 : T.paper3, cursor: 'pointer', textAlign: 'left' }}>
+            <button key={p.id} onClick={() => up({ crPromptId: p.id, crView: 'prompt', crSelfScore: {} })} className="lift"
+              style={{ flex: 1, minWidth: 240, padding: '14px 18px', borderRadius: 14, border: `2px solid ${active ? T.orange : T.hairline}`, background: active ? 'var(--accent-bg)' : T.glass, backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', boxShadow: T.shadow, cursor: 'pointer', textAlign: 'left' }}>
               <Cap color={T.orange2} mb={4}>Case Study {String(i + 1).padStart(2, '0')}</Cap>
-              <div style={{ fontFamily: T.serif, fontSize: 15, color: T.ink, fontWeight: 500, lineHeight: 1.3 }}>{p.title}</div>
+              <div style={{ fontFamily: T.sans, fontSize: 15, color: T.ink, fontWeight: 700, lineHeight: 1.3 }}>{p.title}</div>
             </button>
           );
         })}
       </div>
-      <div style={{ display: 'flex', gap: 0, marginBottom: 24 }}>{tab('prompt', 'Prompt + Draft')}{tab('rubric', 'Rubric')}{tab('exemplar', 'Exemplar')}</div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 22 }}>{tab('prompt', 'Prompt + Draft')}{tab('rubric', 'Rubric')}{tab('exemplar', 'Exemplar')}</div>
 
       {st.crView === 'prompt' && (
         <>
-          <div style={{ marginBottom: 20, padding: '24px 28px', background: T.paper3, borderLeft: `3px solid ${T.ink}`, border: `1px solid ${T.hairline}` }}>
-            <Cap color={T.orange2} mb={10}>— Scenario</Cap>
-            <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.65, color: T.ink, whiteSpace: 'pre-wrap' }}>{prompt.scenario}</p>
-          </div>
-          <div style={{ marginBottom: 24, padding: '24px 28px', background: T.paper2, borderLeft: `3px solid ${T.orange2}`, border: `1px solid ${T.hairline}` }}>
-            <Cap color={T.orange2} mb={10}>— Your Task</Cap>
-            <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.65, color: T.ink, whiteSpace: 'pre-wrap' }}>{prompt.task}</p>
-          </div>
+          <Card style={{ marginBottom: 16 }}>
+            <Cap color={T.orange2} mb={10}>Scenario</Cap>
+            <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.65, color: T.ink, margin: 0, whiteSpace: 'pre-wrap' }}>{prompt.scenario}</p>
+          </Card>
+          <Card style={{ marginBottom: 18, background: 'var(--accent-bg)' }}>
+            <Cap color={T.orange2} mb={10}>Your Task</Cap>
+            <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.65, color: T.ink, margin: 0, whiteSpace: 'pre-wrap' }}>{prompt.task}</p>
+          </Card>
           <div style={{ marginBottom: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
-              <Cap color={T.orange2}>— Your Draft</Cap>
-              <span style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 13, color: T.muted }}>{wordCount} words · saved locally</span>
+              <Cap color={T.orange2}>Your Draft</Cap>
+              <span style={{ fontFamily: T.sans, fontSize: 12, color: T.muted }}>{wordCount} words · saved locally</span>
             </div>
             <textarea value={draft} onChange={(e) => saveDraft(e.target.value)} placeholder="Compose your response here. Address each numbered part of the task. Your draft is saved automatically."
               aria-label="Draft response"
-              onFocus={(e) => { e.target.style.boxShadow = `0 0 0 3px ${T.orange2}40`; e.target.style.borderColor = T.orange2; }}
-              onBlur={(e) => { e.target.style.boxShadow = 'none'; e.target.style.borderColor = T.ink; }}
-              style={{ width: '100%', minHeight: 320, padding: '20px 24px', border: `1px solid ${T.ink}`, background: T.paper3, color: T.ink, fontSize: 17, lineHeight: 1.65, fontFamily: T.serif, resize: 'vertical', outline: 'none', transition: 'box-shadow .15s, border-color .15s' }} />
+              onFocus={(e) => { e.target.style.boxShadow = '0 0 0 3px var(--accent-bg)'; e.target.style.borderColor = T.orange; }}
+              onBlur={(e) => { e.target.style.boxShadow = 'none'; e.target.style.borderColor = 'var(--border)'; }}
+              style={{ width: '100%', minHeight: 320, padding: '18px 20px', borderRadius: 14, border: `1.5px solid ${T.hairline}`, background: 'var(--surface-solid)', color: T.ink, fontSize: 16, lineHeight: 1.65, fontFamily: T.serif, resize: 'vertical', outline: 'none', transition: 'box-shadow .15s, border-color .15s', boxSizing: 'border-box' }} />
             <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
               <Btn onClick={() => up({ crView: 'rubric' })} variant="accent" style={{ flex: 1, minWidth: 160, padding: '14px' }}>Score with Rubric →</Btn>
               <Btn onClick={() => up({ crView: 'exemplar' })} variant="ghost" style={{ flex: 1, minWidth: 160, padding: '14px' }}>Compare to Exemplar →</Btn>
@@ -1836,53 +1893,53 @@ const ConstructedResponse = ({ st, up }) => {
 
       {st.crView === 'rubric' && (
         <>
-          <div style={{ marginBottom: 20, padding: '20px 24px', background: T.paper3, border: `1px solid ${T.hairline}` }}>
-            <Cap color={T.orange2} mb={8}>— How to Use This Rubric</Cap>
-            <p style={{ fontFamily: T.serif, fontSize: 15, color: T.ink, lineHeight: 1.6, fontStyle: 'italic' }}>For each criterion, choose the level that best describes your draft. Be honest — the goal is to identify what to revise.</p>
-          </div>
+          <Card style={{ marginBottom: 18 }}>
+            <Cap color={T.orange2} mb={8}>How to Use This Rubric</Cap>
+            <p style={{ fontFamily: T.sans, fontSize: 14, color: T.ink, lineHeight: 1.6, margin: 0 }}>For each criterion, choose the level that best describes your draft. Be honest — the goal is to identify what to revise.</p>
+          </Card>
           {prompt.rubric.map((r, i) => {
             const sel = st.crSelfScore?.[i];
             const Btn3 = (level, label, c, bg) => (
               <button onClick={() => setSelf(i, level)}
-                style={{ ...baseStyles.cap, fontSize: 10, flex: 1, padding: '12px', border: `1px solid ${sel === level ? c : T.hairline}`, background: sel === level ? bg : T.paper3, color: sel === level ? c : T.muted, cursor: 'pointer' }}>{label}</button>
+                style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, flex: 1, padding: '11px', borderRadius: 10, border: `2px solid ${sel === level ? c : T.hairline}`, background: sel === level ? bg : 'transparent', color: sel === level ? c : T.muted, cursor: 'pointer' }}>{label}</button>
             );
             return (
-              <div key={i} style={{ marginBottom: 16, padding: '20px 24px', border: `1px solid ${T.hairline}`, background: T.paper3 }}>
+              <Card key={i} style={{ marginBottom: 14 }}>
                 <Cap color={T.orange2} mb={6}>Criterion {String(i + 1).padStart(2, '0')}</Cap>
-                <h3 style={{ fontFamily: T.serif, fontWeight: 600, fontSize: 19, color: T.ink, marginBottom: 14, letterSpacing: '-.005em' }}>{r.criterion}</h3>
-                <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 6 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.green, marginRight: 8 }}>Strong</span>{r.high}</div>
-                <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 6 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.orange2, marginRight: 8 }}>Developing</span>{r.mid}</div>
-                <div style={{ fontFamily: T.serif, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 14 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.red, marginRight: 8 }}>Limited</span>{r.low}</div>
+                <h3 style={{ fontFamily: T.sans, fontWeight: 700, fontSize: 17, color: T.ink, marginBottom: 14, letterSpacing: '-.01em' }}>{r.criterion}</h3>
+                <div style={{ fontFamily: T.sans, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 6 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.green, marginRight: 8 }}>Strong</span>{r.high}</div>
+                <div style={{ fontFamily: T.sans, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 6 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.orange2, marginRight: 8 }}>Developing</span>{r.mid}</div>
+                <div style={{ fontFamily: T.sans, fontSize: 14, color: T.ink, lineHeight: 1.55, marginBottom: 14 }}><span style={{ ...baseStyles.cap, fontSize: 9, color: T.red, marginRight: 8 }}>Limited</span>{r.low}</div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  {Btn3('high', '3 · Strong', T.green, T.greenBg)}
-                  {Btn3('mid', '2 · Developing', T.orange2, T.paper2)}
-                  {Btn3('low', '1 · Limited', T.red, T.redBg)}
+                  {Btn3('high', '3 · Strong', T.green, 'var(--green-bg)')}
+                  {Btn3('mid', '2 · Developing', T.orange2, 'var(--accent-bg)')}
+                  {Btn3('low', '1 · Limited', T.red, 'var(--red-bg)')}
                 </div>
-              </div>
+              </Card>
             );
           })}
           {tally && (
-            <div style={{ padding: '20px 24px', background: T.paper2, border: `1px solid ${T.ink}` }}>
-              <Cap color={T.orange2} mb={8}>— Self-Assessment</Cap>
-              <p style={{ fontFamily: T.serif, fontSize: 16, color: T.ink, marginBottom: 6 }}>
+            <Card style={{ background: 'var(--accent-bg)' }}>
+              <Cap color={T.orange2} mb={8}>Self-Assessment</Cap>
+              <p style={{ fontFamily: T.sans, fontSize: 15, color: T.ink, marginBottom: 6 }}>
                 Strong (3): <strong>{tally.high || 0}</strong> · Developing (2): <strong>{tally.mid || 0}</strong> · Limited (1): <strong>{tally.low || 0}</strong>
               </p>
-              <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 14, color: T.muted, lineHeight: 1.5 }}>Revise any criterion you scored Developing or Limited, then compare to the exemplar response.</p>
-            </div>
+              <p style={{ fontFamily: T.sans, fontSize: 13, color: T.muted, lineHeight: 1.5, margin: 0 }}>Revise any criterion you scored Developing or Limited, then compare to the exemplar response.</p>
+            </Card>
           )}
         </>
       )}
 
       {st.crView === 'exemplar' && (
         <>
-          <div style={{ marginBottom: 20, padding: '20px 24px', background: T.greenBg, border: `1px solid ${T.green}` }}>
-            <Cap color={T.green} mb={6}>— Exemplar Response</Cap>
-            <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 14, color: T.ink, lineHeight: 1.55 }}>This is one strong response — not the only correct answer. Compare structure, evidence use, and how each task element is addressed.</p>
-          </div>
-          <div style={{ padding: '32px 36px', background: T.paper3, border: `1px solid ${T.ink}` }}>
-            <p style={{ fontFamily: T.serif, fontSize: 17, lineHeight: 1.7, color: T.ink, whiteSpace: 'pre-wrap' }}>{prompt.exemplar}</p>
-          </div>
-          <Btn onClick={() => up({ crView: 'prompt' })} variant="primary" style={{ width: '100%', marginTop: 20, padding: '14px' }}>← Back to Draft</Btn>
+          <Card style={{ marginBottom: 16, background: 'var(--green-bg)', border: '1px solid var(--green-border)' }}>
+            <Cap color={T.green} mb={6}>Exemplar Response</Cap>
+            <p style={{ fontFamily: T.sans, fontSize: 14, color: T.ink, lineHeight: 1.55, margin: 0 }}>This is one strong response — not the only correct answer. Compare structure, evidence use, and how each task element is addressed.</p>
+          </Card>
+          <Card>
+            <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.7, color: T.ink, margin: 0, whiteSpace: 'pre-wrap' }}>{prompt.exemplar}</p>
+          </Card>
+          <Btn onClick={() => up({ crView: 'prompt' })} variant="primary" style={{ width: '100%', marginTop: 18, padding: '14px' }}>← Back to Draft</Btn>
         </>
       )}
     </Page>
@@ -1893,7 +1950,7 @@ const ConstructedResponse = ({ st, up }) => {
 const STORAGE_KEY = 'swd-cst-060-state-v2';
 const OLD_STORAGE_KEYS = ['swd-cst-060-state-v1'];
 // fields that survive page reload (skip transient quiz session + reset confirmation)
-const PERSIST_FIELDS = ['phase', 'qIndex', 'answers', 'pretestScores', 'pretestAnswers', 'posttestAnswers', 'postScores', 'posttestStarted', 'completedModules', 'conceptProgress', 'crPromptId'];
+const PERSIST_FIELDS = ['phase', 'qIndex', 'answers', 'pretestScores', 'pretestAnswers', 'posttestAnswers', 'postScores', 'posttestStarted', 'completedModules', 'conceptProgress', 'crPromptId', 'theme'];
 // transient phases can't resume after a reload (their session state isn't
 // persisted) — send the user to the nearest hub instead of a crash/blank page
 const PHASE_FALLBACK = { module: 'modules', quizRun: 'quizPicker', quizDone: 'quizPicker' };
@@ -1927,6 +1984,8 @@ export default function App() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(persist));
     } catch {}
   }, [st]);
+  // reflect light/dark theme onto <html data-theme> so the CSS variables flip
+  useEffect(() => { document.documentElement.dataset.theme = st.theme || 'light'; }, [st.theme]);
   const weak = st.pretestScores ? Object.entries(st.pretestScores.domains).filter(([, v]) => pct(v.correct, v.total) < 70).map(([d]) => d) : [];
   const handleNav = (id) => {
     const m = {
@@ -1949,7 +2008,8 @@ export default function App() {
       try { localStorage.removeItem(STORAGE_KEY); } catch {}
       setSt({ ...INITIAL_STATE, posttestStarted: false, confirmReset: false, pretestAnswers: {}, posttestAnswers: {} });
     }}
-    onCancelReset={() => up({ confirmReset: false })} />;
+    onCancelReset={() => up({ confirmReset: false })}
+    onToggleTheme={() => up({ theme: st.theme === 'dark' ? 'light' : 'dark' })} />;
 
   if (st.phase === 'welcome')    return <Shell nav={nav}><Welcome onStart={() => up({ phase: 'pretest', qIndex: 0, answers: {}, pretestAnswers: {} })} /></Shell>;
   if (st.phase === 'flashcards') return <Shell nav={nav}><Flashcards st={st} up={up} /></Shell>;
@@ -1963,12 +2023,13 @@ export default function App() {
   if (st.phase === 'module')     return <Shell nav={nav}><LearningModule domain={st.activeModule} phase={st.modPhase} pqIndex={st.modPQIndex} pAnswers={st.modPAnswers} conceptProgress={st.conceptProgress} onConceptView={(idx) => setSt(p => { const dom = p.activeModule; const cur = p.conceptProgress?.[dom] || {}; if (cur[idx]?.viewed) return p; return { ...p, conceptProgress: { ...p.conceptProgress, [dom]: { ...cur, [idx]: { ...(cur[idx] || {}), viewed: true } } } }; })} onConceptRate={(idx, rating) => setSt(p => { const dom = p.activeModule; const cur = p.conceptProgress?.[dom] || {}; return { ...p, conceptProgress: { ...p.conceptProgress, [dom]: { ...cur, [idx]: { ...(cur[idx] || {}), viewed: true, rating } } } }; })} onBack={() => up({ phase: 'modules' })} onStartPractice={() => up({ modPhase: 'practice' })} onPAnswer={(i, a) => { if (i === 'next') { up({ modPQIndex: st.modPQIndex + 1 }); return; } up({ modPAnswers: { ...st.modPAnswers, [i]: a } }); }} onFinish={() => up({ phase: 'modules', completedModules: [...new Set([...st.completedModules, st.activeModule])] })} /></Shell>;
   if (st.phase === 'posttest')   return <Shell nav={nav}>{!st.posttestStarted ? (
     <Page narrow>
-      <header style={{ textAlign: 'center', padding: '60px 0' }}>
-        <Cap mb={12}>The Final Examination</Cap>
-        <h2 style={{ fontFamily: T.serif, fontWeight: 500, fontSize: 56, color: T.ink, letterSpacing: '-.01em', marginBottom: 18 }}>The Post-Test</h2>
-        <p style={{ fontFamily: T.serif, fontStyle: 'italic', fontSize: 19, color: T.ink2, lineHeight: 1.55, maxWidth: 540, margin: '0 auto 36px' }}>{POSTTEST.length} {WELCOME.posttestIntro}</p>
-        <Btn onClick={() => up({ posttestStarted: true, answers: {}, posttestAnswers: {}, qIndex: 0 })} variant="primary" style={{ padding: '18px 48px' }}>Begin the Post-Test</Btn>
-      </header>
+      <div className="fade-up fade-up-1" style={{ textAlign: 'center', padding: '56px 0' }}>
+        <div style={{ fontSize: 46, marginBottom: 10 }}>🏁</div>
+        <Cap color={T.orange2} mb={10}>The Final Examination</Cap>
+        <h2 style={{ fontFamily: T.sans, fontWeight: 800, fontSize: 'clamp(2.2rem, 5vw, 3rem)', color: T.ink, letterSpacing: '-.025em', margin: '0 0 16px' }}>The Post-Test</h2>
+        <p style={{ fontFamily: T.sans, fontSize: 17, color: T.muted, lineHeight: 1.55, maxWidth: 540, margin: '0 auto 32px' }}>{POSTTEST.length} {WELCOME.posttestIntro}</p>
+        <Btn onClick={() => up({ posttestStarted: true, answers: {}, posttestAnswers: {}, qIndex: 0 })} variant="accent" style={{ padding: '16px 44px', fontSize: 16 }}>Begin the Post-Test <span className="cta-arrow">→</span></Btn>
+      </div>
     </Page>
   ) : (
     <QuestionScreen questions={POSTTEST} answers={st.answers} qIndex={st.qIndex} onAnswer={(i, a) => { const next = { ...st.answers, [i]: a }; up({ answers: next, posttestAnswers: next }); }} onNav={(d) => up({ qIndex: Math.max(0, Math.min(POSTTEST.length - 1, st.qIndex + d)) })} onSubmit={() => { const s = calcScores(POSTTEST, st.answers); up({ phase: 'comparison', postScores: s, posttestAnswers: { ...st.answers } }); }} phase="Post-Test" />
