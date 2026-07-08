@@ -81,7 +81,7 @@ const WELCOME = {
   "subareaWord": "Competency",
   "posttestIntro": "fresh questions across the six competencies. Demonstrate the growth of your study.",
   "crSubtitle": "Competency 0007 · Analysis, Synthesis & Application — 20% of your score",
-  "colophon": "Set in EB Garamond. Composed for the New York State teaching candidate, in the manner of a Penguin Classic. Aligned to the NYSTCE CST Students with Disabilities (060) framework, IDEA, and Part 200 of the Regulations of the Commissioner of Education.",
+  "colophon": "Set in Plus Jakarta Sans and Georgia. Composed for the New York State teaching candidate, in the manner of a Penguin Classic. Aligned to the NYSTCE CST Students with Disabilities (060) framework, IDEA, and Part 200 of the Regulations of the Commissioner of Education.",
   "testFacts": {
     "heading": "CST 060 at a Glance",
     "tables": [
@@ -1205,6 +1205,7 @@ const NavBar = ({ st, onNav, onReset, onConfirmReset, onCancelReset, onToggleThe
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
           <button onClick={onToggleTheme} title={st.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={st.theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             style={{ padding: '4px 9px', borderRadius: 99, border: '1px solid rgba(246,239,224,0.2)', background: 'transparent', color: '#f0e7d6', cursor: 'pointer', fontSize: 13, lineHeight: 1 }}>
             {st.theme === 'dark' ? '☀️' : '🌙'}
           </button>
@@ -1581,7 +1582,7 @@ const ConceptStudy = ({ domain, conceptProgress, onConceptView, onConceptRate, o
           )}
 
           {concept.animatedVisual && (
-            <div style={{ marginTop: 20, background: T.paper, borderRadius: 10, padding: '12px 14px', border: `1px solid ${T.hairline}` }}>
+            <div style={{ /* fixed light surface — visuals use light-scheme ink, keep readable in dark mode */ marginTop: 20, background: '#fffdf6', borderRadius: 10, padding: '12px 14px', border: `1px solid ${T.hairline}` }}>
               <AnimatedVisual kind={concept.animatedVisual} color={ctype.color} />
             </div>
           )}
