@@ -956,7 +956,7 @@ const ConceptStudy = ({ domain, conceptProgress, onConceptView, onConceptRate, o
         <div style={{ background: T.paper3, padding: '24px 26px 22px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 14 }}>
             <h3 style={{ fontFamily: T.serif, fontWeight: 600, fontSize: 24, color: T.ink, margin: 0, lineHeight: 1.25, letterSpacing: '-.005em', flex: 1 }}>{concept.title}</h3>
-            <TTSButton token={`mod:${domain}:${conceptIdx}`} text={`${concept.title}. ${concept.body}${concept.example ? '. Applied example: ' + concept.example : ''}`} label="Read" size="xs" />
+            <TTSButton token={`mod:${domain}:${conceptIdx}`} text={[concept.title, '. ', concept.body, ...(concept.example ? ['. Applied example: ', concept.example] : [])]} label="Read" size="xs" />
           </div>
           <p style={{ fontFamily: T.serif, fontSize: 16, lineHeight: 1.7, color: T.ink, margin: 0 }}>{concept.body}</p>
 
